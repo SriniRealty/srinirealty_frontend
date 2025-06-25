@@ -1,0 +1,257 @@
+@import "tailwindcss";
+
+:root {
+  --primary-text: #1a1a1a;
+  --background: #ffffff;
+  --cta: #2563eb;
+  --cta-hover: #1d4ed8;
+  --primary: #1f2937;
+  --secondary: #6b7280;
+  --highlight: #fbbf24;
+  --border-gray: #e5e7eb;
+  --whatsapp-green: #25d366;
+  --phone-blue: #1e40af;
+  --font-poppins: "Poppins", sans-serif;
+  --font-inter: "Inter", sans-serif;
+
+  /* shadcn/ui variables */
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+  --foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+  --foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+}
+
+/* Base styles */
+* {
+  border-color: var(--border-gray);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--primary-text);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Font utilities */
+.font-heading {
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cta);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cta-hover);
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-delay {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-delay-2 {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out;
+}
+
+.animate-fade-in-delay {
+  animation: fade-in-delay 1s ease-out 0.3s both;
+}
+
+.animate-fade-in-delay-2 {
+  animation: fade-in-delay-2 1s ease-out 0.6s both;
+}
+
+/* Custom utility classes */
+.text-primary {
+  color: var(--primary) !important;
+}
+
+.text-secondary {
+  color: var(--secondary) !important;
+}
+
+.text-cta {
+  color: var(--cta) !important;
+}
+
+.text-highlight {
+  color: var(--highlight) !important;
+}
+
+.bg-cta {
+  background-color: var(--cta) !important;
+}
+
+.bg-cta-hover {
+  background-color: var(--cta-hover) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--secondary) !important;
+}
+
+.bg-highlight {
+  background-color: var(--highlight) !important;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--cta) 0%, var(--cta-hover) 100%) !important;
+}
+
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+}
+
+.border-light {
+  border-color: var(--border-gray) !important;
+}
+
+/* FIXED: Custom gradient utilities for perfect CTA color */
+.bg-gradient-to-r.from-cta {
+  background-image: linear-gradient(to right, #2563eb, var(--tw-gradient-to, rgba(37, 99, 235, 0))) !important;
+}
+
+.bg-gradient-to-r.from-cta.to-purple-600 {
+  background-image: linear-gradient(to right, #2563eb, #9333ea) !important;
+}
+
+.bg-gradient-to-r.from-cta.to-blue-600 {
+  background-image: linear-gradient(to right, #2563eb, #2563eb) !important;
+}
+
+.bg-gradient-to-r.from-cta.to-blue-700 {
+  background-image: linear-gradient(to right, #2563eb, #1d4ed8) !important;
+}
+
+.bg-gradient-to-br.from-cta {
+  background-image: linear-gradient(to bottom right, #2563eb, var(--tw-gradient-to, rgba(37, 99, 235, 0))) !important;
+}
+
+.bg-gradient-to-br.from-cta.via-blue-600.to-purple-600 {
+  background-image: linear-gradient(to bottom right, #2563eb, #2563eb, #9333ea) !important;
+}
+
+/* Text gradient utilities */
+.bg-clip-text.text-transparent.bg-gradient-to-r.from-cta.to-purple-600 {
+  background-image: linear-gradient(to right, #2563eb, #9333ea) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+.bg-clip-text.text-transparent.bg-gradient-to-r.from-cta.to-blue-600 {
+  background-image: linear-gradient(to right, #2563eb, #2563eb) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Button gradient utilities */
+.bg-gradient-to-r.from-cta.to-blue-600:hover {
+  background-image: linear-gradient(to right, #1d4ed8, #1d4ed8) !important;
+}
+
+.bg-gradient-to-r.from-cta.hover\:from-blue-600:hover {
+  background-image: linear-gradient(to right, #1d4ed8, var(--tw-gradient-to, rgba(29, 78, 216, 0))) !important;
+}
+
+/* Ensure all CTA-related gradients work perfectly */
+.from-cta {
+  --tw-gradient-from: #2563eb !important;
+  --tw-gradient-to: rgba(37, 99, 235, 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.to-cta {
+  --tw-gradient-to: #2563eb !important;
+}
+
+.via-cta {
+  --tw-gradient-to: rgba(37, 99, 235, 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #2563eb, var(--tw-gradient-to) !important;
+}
+
+select {
+  max-width: 100vw;
+}
