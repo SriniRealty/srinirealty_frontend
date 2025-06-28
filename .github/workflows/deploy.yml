@@ -32,40 +32,37 @@ jobs:
     - name: Set gcloud project explicitly
       run: gcloud config set project $PROJECT_ID
 
+    - name: Verify active service account
+      run: gcloud auth list
+
+    - name: Verify project
+      run: gcloud config get-value project
+
     - name: Configure Docker to use gcloud as a credential helper
       run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-    - name: Verify Artifact Registry repository exists
+    - name: Verify Artifact Registry repo exists
       run: |
-        echo "Verifying repository..."
         gcloud artifacts repositories describe srinirealty-repo --location=us-central1
-
-    - name: Create Artifact Registry repository (if it doesn't exist)
-      run: |
-        if ! gcloud artifacts repositories describe srinirealty-repo --location=us-central1; then
-          gcloud artifacts repositories create srinirealty-repo \
-            --repository-format=docker \
-            --location=us-central1 \
-            --description="Docker repository for Srini Realty website"
-        else
-          echo "Repository already exists."
-        fi
 
     - name: Build Docker image
       run: |
-        echo "Building image..."
-        docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA .
+        IMAGE_URI=us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA
+        echo "Building image: $IMAGE_URI"
+        docker build -t $IMAGE_URI .
 
-    - name: Push Docker image to Artifact Registry
+    - name: Push Docker image
       run: |
-        echo "Pushing image..."
-        docker push us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA
+        IMAGE_URI=us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA
+        echo "Pushing image: $IMAGE_URI"
+        docker push $IMAGE_URI
 
     - name: Deploy to Cloud Run
       run: |
-        echo "Deploying to Cloud Run..."
+        IMAGE_URI=us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA
+        echo "Deploying to Cloud Run with image: $IMAGE_URI"
         gcloud run deploy $SERVICE_NAME \
-          --image us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA \
+          --image $IMAGE_URI \
           --platform managed \
           --region $REGION \
           --allow-unauthenticated \
