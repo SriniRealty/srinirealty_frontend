@@ -3,13 +3,13 @@ name: Deploy to Google Cloud Run
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME: srinirealty-website
   REGION: us-central1
-  REPOSITORY: srinirealty-repo
 
 jobs:
   deploy:
@@ -27,30 +27,36 @@ jobs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 
-    - name: Create Artifact Registry repository
+    - name: Configure Docker to use gcloud as a credential helper
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+    - name: Create Artifact Registry repository (if it doesn't exist)
       run: |
-        gcloud artifacts repositories create $REPOSITORY \
+        gcloud artifacts repositories create srinirealty-repo \
           --repository-format=docker \
-          --location=$REGION \
+          --location=us-central1 \
           --description="Docker repository for Srini Realty website" || true
 
-    - name: Configure Docker to use gcloud as a credential helper
-      run: gcloud auth configure-docker $REGION-docker.pkg.dev
-
     - name: Build Docker image
-      run: docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME:$GITHUB_SHA .
+      run: |
+        docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA .
 
     - name: Push Docker image to Artifact Registry
-      run: docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME:$GITHUB_SHA
+      run: |
+        docker push us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA
 
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy $SERVICE_NAME \
-          --image $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME:$GITHUB_SHA \
+          --image us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA \
           --platform managed \
           --region $REGION \
           --allow-unauthenticated \
           --memory 1Gi \
           --cpu 1 \
           --max-instances 10 \
-          --port 3000
+          --set-env-vars="NODE_ENV=production"
+
+    - name: Get service URL
+      run: |
+        echo "Service URL: $(gcloud run services describe $SERVICE_NAME --region=$REGION --format='value(status.url)')"
