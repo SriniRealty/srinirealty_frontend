@@ -14,7 +14,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -26,27 +26,44 @@ jobs:
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Set gcloud project explicitly
+      run: gcloud config set project $PROJECT_ID
 
     - name: Configure Docker to use gcloud as a credential helper
-      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+    - name: Verify Artifact Registry repository exists
+      run: |
+        echo "Verifying repository..."
+        gcloud artifacts repositories describe srinirealty-repo --location=us-central1
 
     - name: Create Artifact Registry repository (if it doesn't exist)
       run: |
-        gcloud artifacts repositories create srinirealty-repo \
-          --repository-format=docker \
-          --location=us-central1 \
-          --description="Docker repository for Srini Realty website" || true
+        if ! gcloud artifacts repositories describe srinirealty-repo --location=us-central1; then
+          gcloud artifacts repositories create srinirealty-repo \
+            --repository-format=docker \
+            --location=us-central1 \
+            --description="Docker repository for Srini Realty website"
+        else
+          echo "Repository already exists."
+        fi
 
     - name: Build Docker image
       run: |
+        echo "Building image..."
         docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA .
 
     - name: Push Docker image to Artifact Registry
       run: |
+        echo "Pushing image..."
         docker push us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA
 
     - name: Deploy to Cloud Run
       run: |
+        echo "Deploying to Cloud Run..."
         gcloud run deploy $SERVICE_NAME \
           --image us-central1-docker.pkg.dev/$PROJECT_ID/srinirealty-repo/$SERVICE_NAME:$GITHUB_SHA \
           --platform managed \
@@ -59,4 +76,5 @@ jobs:
 
     - name: Get service URL
       run: |
-        echo "Service URL: $(gcloud run services describe $SERVICE_NAME --region=$REGION --format='value(status.url)')"
+        SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format='value(status.url)')
+        echo "Service URL: $SERVICE_URL"
