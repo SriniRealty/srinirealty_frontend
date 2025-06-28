@@ -8,7 +8,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  SERVICE_NAME: srinirealty-website
+  SERVICE_NAME: srinirealty-webiste
   REGION: us-central1
 
 jobs:
