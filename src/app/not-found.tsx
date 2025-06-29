@@ -7,7 +7,7 @@ export default function NotFound() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
       <div className="max-w-4xl mx-auto text-center">
         {/* 404 Number */}
-        <div className="relative mb-8">
+        <div className="relative mb-16">
           <h1 className="text-[12rem] md:text-[16rem] font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none select-none">
             404
           </h1>
@@ -116,9 +116,6 @@ export default function NotFound() {
         </div>
 
         {/* Footer Text */}
-        <div className="mt-12 text-sm text-gray-500">
-          <p>© 2024 Srini Realty - Growing Together Since 2008</p>
-        </div>
       </div>
     </div>
   )

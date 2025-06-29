@@ -1,39 +1,29 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import {
-  Menu,
-  Home,
-  Building2,
-  Building,
-  Warehouse,
-  TreePine,
-  Users,
-  BookOpen,
-  Phone,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { usePathname } from "next/navigation";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import LocationDialog from "./location-dialog";
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { Menu, Home, Building2, Building, Warehouse, TreePine, Users, BookOpen, Phone } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { usePathname } from "next/navigation"
+import { DialogTitle } from "@radix-ui/react-dialog"
+import LocationDialog from "./location-dialog"
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isLocationOpen, setIsLocationOpen] = useState(false)
 
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      setIsScrolled(window.scrollY > 10)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   // Navigation items for desktop (without icons)
   const desktopNavItems = [
@@ -45,7 +35,7 @@ export default function Navbar() {
     { label: "About Us", href: "/about" },
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
-  ];
+  ]
 
   // Navigation items for mobile (with icons)
   const mobileNavItems = [
@@ -53,16 +43,12 @@ export default function Navbar() {
     { label: "Villas", href: "/villas", icon: Building2 },
     { label: "Open Flats", href: "/open-flats", icon: Building },
     { label: "Apartments", href: "/apartments", icon: Building },
-    {
-      label: "Independent Houses",
-      href: "/independent-houses",
-      icon: Warehouse,
-    },
+    { label: "Independent Houses", href: "/independent-houses", icon: Warehouse },
     { label: "Farms", href: "/farms", icon: TreePine },
     { label: "About Us", href: "/about", icon: Users },
     { label: "Blog", href: "/blog", icon: BookOpen },
     { label: "Contact", href: "/contact", icon: Phone },
-  ];
+  ]
 
   return (
     <>
@@ -75,11 +61,7 @@ export default function Navbar() {
           <div className="flex justify-between items-center h-16">
             {/* Logo - Reduced height */}
             <Link href="/" className="flex items-center space-x-3">
-              <img
-                src="/images/srini_realty_logo.png"
-                alt="Srini Realty"
-                className="h-40 w-auto"
-              />
+              <img src="/images/srini_realty_logo.png" alt="Srini Realty" className="h-40 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -97,9 +79,7 @@ export default function Navbar() {
                   {item.label}
                   <span
                     className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-300 ${
-                      pathname === item.href
-                        ? "w-full"
-                        : "w-0 group-hover:w-full"
+                      pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
                     }`}
                   ></span>
                 </Link>
@@ -108,7 +88,7 @@ export default function Navbar() {
               <Button
                 className="ml-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                 onClick={() => {
-                  setIsLocationOpen(true);
+                  setIsLocationOpen(true)
                 }}
               >
                 Schedule Visit
@@ -126,16 +106,13 @@ export default function Navbar() {
                   <Menu className="h-6 w-6 text-primary transition-transform duration-300" />
                 </Button>
               </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="w-3/5 bg-white transition-all duration-500 ease-in-out"
-              >
+              <SheetContent side="right" className="w-3/5 bg-white transition-all duration-500 ease-in-out">
                 <DialogTitle asChild>
                   <VisuallyHidden>Navigation Menu</VisuallyHidden>
                 </DialogTitle>
                 <div className="flex flex-col space-y-4 mt-12 h-4/5">
                   {mobileNavItems.map((item, index) => {
-                    const IconComponent = item.icon;
+                    const IconComponent = item.icon
                     return (
                       <Link
                         key={item.href}
@@ -148,9 +125,7 @@ export default function Navbar() {
                         }`}
                         style={{
                           animationDelay: `${index * 50}ms`,
-                          animation: isMobileMenuOpen
-                            ? "slideInRight 0.3s ease-out forwards"
-                            : "none",
+                          animation: isMobileMenuOpen ? "slideInRight 0.3s ease-out forwards" : "none",
                         }}
                       >
                         <IconComponent className="h-5 w-5 flex-shrink-0" />
@@ -159,7 +134,7 @@ export default function Navbar() {
                           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full"></span>
                         )}
                       </Link>
-                    );
+                    )
                   })}
 
                   {/* <Button
@@ -176,10 +151,7 @@ export default function Navbar() {
       </nav>
 
       {/* Location Dialog */}
-      <LocationDialog
-        isOpen={isLocationOpen}
-        onClose={() => setIsLocationOpen(false)}
-      />
+      <LocationDialog isOpen={isLocationOpen} onClose={() => setIsLocationOpen(false)} />
 
       {/* CSS for mobile menu animations */}
       <style jsx>{`
@@ -195,5 +167,5 @@ export default function Navbar() {
         }
       `}</style>
     </>
-  );
+  )
 }
