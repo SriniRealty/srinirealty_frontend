@@ -63,7 +63,7 @@ export default function VillasPage() {
 
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="font-heading text-6xl md:text-8xl font-bold text-white/90 mb-8 drop-shadow-2xl">
+          <h1 className="font-heading text-5xl md:text-8xl font-bold text-white/90 mb-8 drop-shadow-2xl">
             Luxury Villas
           </h1>
           <p className="text-white/80 text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed drop-shadow-lg">

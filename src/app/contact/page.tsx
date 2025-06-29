@@ -74,7 +74,7 @@ export default function ContactPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
-            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-0 shadow-lg bg-white group">
+            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:translate-x-4 border-0 shadow-lg bg-white group">
               <CardContent className="p-0">
                 <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Phone className="h-8 w-8 text-white" />
@@ -83,13 +83,16 @@ export default function ContactPage() {
                   Call Us
                 </h3>
                 <p className="text-gray-600 mb-2">+91 74 7899 7899</p>
-                <Button className="bg-green-500 hover:bg-green-600 text-white text-sm px-4 py-2">
+                <Button
+                  className="bg-green-500 hover:bg-green-600 text-white text-sm px-4 py-2"
+                  onClick={() => window.open("tel:+917478997899", "_self")}
+                >
                   Call Now
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-0 shadow-lg bg-white group">
+            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:translate-x-4 border-0 shadow-lg bg-white group">
               <CardContent className="p-0">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Mail className="h-8 w-8 text-white" />
@@ -104,7 +107,7 @@ export default function ContactPage() {
               </CardContent>
             </Card>
 
-            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-0 shadow-lg bg-white group">
+            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:translate-x-4 border-0 shadow-lg bg-white group">
               <CardContent className="p-0">
                 <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                   <MapPin className="h-8 w-8 text-white" />
@@ -116,13 +119,21 @@ export default function ContactPage() {
                   PE/14, 8-7-91/16, Phase 4, Hasthinapuram South, Hastinapuram,
                   Hyderabad, Telangana 500070
                 </p>
-                <Button className="bg-purple-500 hover:bg-purple-600 text-white text-sm px-4 py-2">
+                <Button
+                  className="bg-purple-500 hover:bg-purple-600 text-white text-sm px-4 py-2"
+                  onClick={() =>
+                    window.open(
+                      "https://www.google.com/maps/search/?api=1&query=PE%2F14%2C+8-7-91%2F16%2C+Phase+4%2C+Hasthinapuram+South%2C+Hastinapuram%2C+Hyderabad%2C+Telangana+500070",
+                      "_blank"
+                    )
+                  }
+                >
                   Get Directions
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-0 shadow-lg bg-white group">
+            <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 hover:translate-x-4 border-0 shadow-lg bg-white group">
               <CardContent className="p-0">
                 <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Clock className="h-8 w-8 text-white" />

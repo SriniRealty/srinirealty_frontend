@@ -1,142 +1,161 @@
+import { Shield, Award, Users, Headphones } from "lucide-react";
+
 const WhyChooseUs = () => {
+  const features = [
+    {
+      icon: Shield,
+      title: "Trusted Expertise",
+      description:
+        "Over 15 years of experience in real estate with a proven track record of successful property transactions and satisfied clients.",
+      bgColor: "bg-blue-100",
+      iconColor: "text-blue-600",
+    },
+    {
+      icon: Award,
+      title: "Premium Properties",
+      description:
+        "Carefully curated selection of high-quality properties in prime locations with excellent investment potential and growth prospects.",
+      bgColor: "bg-purple-100",
+      iconColor: "text-purple-600",
+    },
+    {
+      icon: Users,
+      title: "Personalized Service",
+      description:
+        "Dedicated property consultants who understand your unique needs and provide tailored solutions for your real estate journey.",
+      bgColor: "bg-red-100",
+      iconColor: "text-red-600",
+    },
+    {
+      icon: Headphones,
+      title: "24/7 Support",
+      description:
+        "Round-the-clock customer support to assist you at every step, from property selection to final documentation and beyond.",
+      bgColor: "bg-green-100",
+      iconColor: "text-green-600",
+    },
+  ];
+
   return (
-    <div className="bg-white py-12">
+    <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:text-center">
-          <h2 className="text-4xl md:text-7xl font-bold mb-8 tracking-wide uppercase bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent italic underline">
-            Why Choose Us
-          </h2>{" "}
-          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            A better way to achieve your goals
-          </p>
-          <p className="mt-4 max-w-2xl text-xl text-gray-700 lg:mx-auto">
-            We offer a unique approach that combines expertise, innovation, and
-            a commitment to your success.
-          </p>
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-6xl font-bold text-gray-900 mb-4">
+            Why Choose Us?
+            <div className="w-20 h-1 bg-gradient-to-r from-orange-400 to-orange-500 mx-auto mt-2 rounded-full"></div>
+          </h2>
         </div>
 
-        <div className="mt-10">
-          <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-            <div className="relative">
-              <dt>
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
-                  {/* Heroicon name: outline/globe-alt */}
-                  <svg
-                    className="h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M21 12a9 9 0 01-9 9m-9-9a9 9 0 019-9m-3 9h.01M21 12a9 9 0 00-9-9m9 9V3m0 9h.01M3 12a9 9 0 009 9m-9-9V3m0 9h.01"
-                    />
-                  </svg>
+        {/* Desktop Layout - Side by Side */}
+        <div className="hidden lg:grid lg:grid-cols-2 lg:gap-12 lg:items-start">
+          {/* Left Side - Feature Cards */}
+          <div className="space-y-6 h-[600px] flex flex-col justify-between">
+            {features.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex-1"
+                >
+                  <div className="flex items-start space-x-4">
+                    <div
+                      className={`${feature.bgColor} p-3 rounded-xl flex-shrink-0`}
+                    >
+                      <IconComponent
+                        className={`h-5 w-5 ${feature.iconColor}`}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">
+                        {feature.title}
+                      </h3>
+                      <p className="text-gray-600 leading-relaxed text-sm">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
-                  Global Reach
-                </p>
-              </dt>
-              <dd className="mt-2 ml-16 text-base text-gray-700">
-                Our services extend across the globe, providing solutions
-                tailored to diverse markets and cultures.
-              </dd>
+              );
+            })}
+          </div>
+
+          {/* Right Side - Office Image */}
+          <div className="relative h-[600px]">
+            <div className="bg-gradient-to-br from-blue-400 to-purple-500 rounded-tr-4xl rounded-bl-4xl p-1 h-full">
+              <div className="bg-white rounded-tr-4xl rounded-bl-4xl p-6 h-full">
+                <img
+                  src="/images/villa_4.avif"
+                  alt="Srini Realty Office - Professional Real Estate Services Team"
+                  className="w-full h-full object-cover rounded-tr-4xl rounded-bl-4xl shadow-lg"
+                />
+              </div>
             </div>
 
-            <div className="relative">
-              <dt>
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
-                  {/* Heroicon name: outline/scale */}
-                  <svg
-                    className="h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.002 0M3 6V4m0 2L5 8m-3 9l3 1m0 0l-3-9a5.002 5.002 0 006.002 0M3 18v2m6-11l3-1m0 0l-3 9a5.002 5.002 0 006.002 0M9 7v2m6-11l3 1m0 0l-3 9a5.002 5.002 0 006.002 0M15 6v2m-3 3l3 1m0 0l-3-9a5.002 5.002 0 006.002 0M12 9v2"
-                    />
-                  </svg>
-                </div>
-                <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
-                  Unmatched Expertise
-                </p>
-              </dt>
-              <dd className="mt-2 ml-16 text-base text-gray-700">
-                Our team comprises seasoned professionals with deep knowledge
-                and experience in their respective fields.
-              </dd>
+            {/* Floating Elements */}
+            {/* <div className="absolute -top-4 -right-4 bg-orange-400 text-white p-3 rounded-full shadow-lg animate-pulse">
+              <Award className="h-6 w-6" />
+            </div>
+            <div className="absolute -bottom-4 -left-4 bg-green-400 text-white p-3 rounded-full shadow-lg animate-pulse">
+              <Shield className="h-6 w-6" />
+            </div>
+            <div className="absolute top-1/2 -left-6 bg-purple-400 text-white p-2 rounded-full shadow-lg animate-bounce">
+              <Users className="h-4 w-4" />
+            </div> */}
+          </div>
+        </div>
+
+        {/* Mobile Layout - Stacked with Different Style */}
+        <div className="lg:hidden">
+          {/* Mobile Image First */}
+          <div className="relative mb-8">
+            <div className="bg-gradient-to-r from-blue-400 to-purple-500 rounded-tr-4xl rounded-bl-4xl p-1">
+              <div className="bg-white rounded-tr-4xl rounded-bl-4xl p-4">
+                <img
+                  src="/images/villa_4.avif"
+                  alt="Srini Realty Office - Professional Real Estate Services Team"
+                  className="w-full h-64 object-cover rounded-tr-4xl rounded-bl-4xl shadow-lg"
+                />
+              </div>
             </div>
 
-            <div className="relative">
-              <dt>
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
-                  {/* Heroicon name: outline/lightning-bolt */}
-                  <svg
-                    className="h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                </div>
-                <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
-                  Innovative Solutions
-                </p>
-              </dt>
-              <dd className="mt-2 ml-16 text-base text-gray-700">
-                We leverage cutting-edge technologies and creative strategies to
-                deliver innovative solutions that drive results.
-              </dd>
+            {/* Mobile Floating Elements */}
+            {/* <div className="absolute -top-3 -right-3 bg-orange-400 text-white p-2 rounded-full shadow-lg">
+              <Award className="h-4 w-4" />
             </div>
+            <div className="absolute -bottom-3 -left-3 bg-green-400 text-white p-2 rounded-full shadow-lg">
+              <Shield className="h-4 w-4" />
+            </div> */}
+          </div>
 
-            <div className="relative">
-              <dt>
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
-                  {/* Heroicon name: outline/annotation */}
-                  <svg
-                    className="h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H9l-4 4z"
-                    />
-                  </svg>
+          {/* Mobile Feature Grid - 2x2 Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {features.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  <div className="text-center">
+                    <div
+                      className={`${feature.bgColor} p-3 rounded-xl inline-flex mb-3`}
+                    >
+                      <IconComponent
+                        className={`h-6 w-6 ${feature.iconColor}`}
+                      />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
-                <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
-                  Client-Centric Approach
-                </p>
-              </dt>
-              <dd className="mt-2 ml-16 text-base text-gray-700">
-                Your success is our priority. We work closely with you to
-                understand your needs and tailor our services accordingly.
-              </dd>
-            </div>
-          </dl>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

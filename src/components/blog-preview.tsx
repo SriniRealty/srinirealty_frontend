@@ -127,9 +127,9 @@ export default function BlogPreview() {
 
         <div className="text-center">
           <Link href="/blog">
-            <Button className="bg-cta hover:bg-cta-hover text-white px-8 py-3 text-lg">
+            <Button className="bg-cta hover:bg-cta-hover text-white px-8 py-3 text-xs md:text-lg">
               View All Hyderabad Real Estate Articles
-              <ArrowRight className="h-5 w-5 ml-2" />
+              <ArrowRight className="h-3 w-3 ml-1 md:h-5 md:w-5 md:ml-2" />
             </Button>
           </Link>
         </div>

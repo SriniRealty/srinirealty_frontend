@@ -89,7 +89,7 @@ export default function EnquiryForm({
       const result = await sendEnquiry(formData);
       if (result.success) {
         setSubmitStatus("success");
-        alert(`✅ ${result.message}`);
+        alert(`${result.message}`);
         setFormData({
           name: "",
           email: "",
@@ -107,7 +107,7 @@ export default function EnquiryForm({
         ) {
           window.location.href = result.mailtoLink;
         }
-        alert(`⚠️ ${result.message}\nCall: +91 74 7899 7899`);
+        alert(`${result.message}\nCall: +91 74 7899 7899`);
         setFormData({
           name: "",
           email: "",
@@ -121,7 +121,7 @@ export default function EnquiryForm({
     } catch (error) {
       console.error("Error submitting enquiry:", error);
       setSubmitStatus("error");
-      alert("❌ Failed to send enquiry. Please call +91 74 7899 7899");
+      alert("Failed to send enquiry. Please call +91 74 7899 7899");
     } finally {
       setIsSubmitting(false);
     }
@@ -159,8 +159,11 @@ export default function EnquiryForm({
                 <span className="text-lg">info@srinirealty.in</span>
               </div>
               <div className="flex items-center">
-                <MapPin className="h-6 w-6 mr-4 text-highlight" />
-                <span className="text-lg">Hyderabad, Telangana</span>
+                <MapPin className="h-12 w-12 mr-4 text-highlight" />
+                <span className="text-lg">
+                  PE/14, 8-7-91/16, Phase 4, Hasthinapuram South,Hastinapuram,
+                  Hyderabad, Telangana 500070
+                </span>
               </div>
             </div>
           </div>
@@ -333,9 +336,9 @@ export default function EnquiryForm({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-cta to-blue-700 hover:from-blue-700 hover:to-cta text-white py-3 text-sm md:text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-cta to-blue-700 hover:from-blue-700 hover:to-cta text-xs sm:text-sm md:text-lg font-semibold text-white py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send className="h-5 w-5 mr-2" />
+                  <Send className="h-3 w-3 mr-1 sm:h-5 sm:w-5 sm:mr-2" />
                   {isSubmitting
                     ? "Sending Enquiry..."
                     : "Send Enquiry & Get Expert Consultation"}

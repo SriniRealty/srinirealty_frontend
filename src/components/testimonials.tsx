@@ -6,37 +6,33 @@ import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 const testimonials = [
   {
     id: 1,
-    name: "Rajesh Kumar",
+    name: "Rajesh Reddy",
     role: "Villa Owner",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    image: "/images/male-2.jpg",
     rating: 5,
     text: "Exceptional service and quality construction. Our villa was delivered on time with all promised amenities. Highly recommended!",
   },
   {
     id: 2,
-    name: "Priya Sharma",
+    name: "Priyanka",
     role: "Apartment Owner",
-    image:
-      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
+    image: "/images/female-1.jpg",
     rating: 5,
     text: "The team was professional throughout the process. The apartment quality exceeded our expectations. Great investment!",
   },
   {
     id: 3,
-    name: "Amit Patel",
+    name: "Vinod Kumar",
     role: "Commercial Space Owner",
-    image:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    image: "/images/male-1.jpg",
     rating: 5,
     text: "Perfect location for our business. The commercial space has all modern facilities and excellent connectivity.",
   },
   {
     id: 4,
-    name: "Sunita Reddy",
+    name: "Krishna",
     role: "Independent House Owner",
-    image:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    image: "/images/male-3.jpg",
     rating: 5,
     text: "Our dream home became reality with Premium Properties. Excellent construction quality and timely delivery.",
   },

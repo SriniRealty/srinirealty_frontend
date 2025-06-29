@@ -106,7 +106,7 @@ export default function HomePage() {
                 />
 
                 {/* Overlay Info Card */}
-                <div className="absolute bottom-16 left-6 right-6 bg-white/95 backdrop-blur-sm rounded-xl p-4">
+                <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm rounded-xl p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold text-gray-900">
@@ -123,37 +123,6 @@ export default function HomePage() {
                       <div className="text-xs text-gray-500">
                         Starting Price
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Achievement Cards */}
-              <div className="absolute -top-2 -right-2 bg-white rounded-xl shadow-lg p-4 border">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <Award className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      RERA Certified
-                    </div>
-                    <div className="text-xs text-gray-600">All Projects</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -bottom-6 -left-2 bg-white rounded-xl shadow-lg p-4 border">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Building className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      50+ Projects
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      Successfully Delivered
                     </div>
                   </div>
                 </div>
@@ -188,16 +157,18 @@ export default function HomePage() {
             property with Srini Realty in Hyderabad. Together, we'll build your
             future.
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
-              onClick={() => setIsLocationOpen(true)}
-              className="bg-gradient-to-r from-cta to-blue-600 hover:from-blue-600 hover:to-purple-600 text-white px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-semibold"
+              onClick={() => {
+                setIsLocationOpen(true);
+              }}
             >
-              Schedule Site Visit
+              Schedule Consultation
             </Button>
             <Button
               variant="outline"
-              className="border-2 border-cta text-cta hover:bg-cta hover:text-white px-10 py-4 text-lg font-semibold rounded-xl"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-3 font-semibold"
             >
               Download Brochure
             </Button>
