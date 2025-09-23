@@ -135,6 +135,14 @@ const relatedPosts = [
 ];
 
 export default function BlogPostPage() {
+  const formatDate = (d: string | Date) =>
+    new Intl.DateTimeFormat("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: "IST", // avoids TZ shifts across server/client
+    }).format(new Date(d));
+
   return (
     <div className="pt-16 min-h-screen bg-gray-50">
       {/* Breadcrumb */}
@@ -338,7 +346,9 @@ export default function BlogPostPage() {
                       </h4>
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="h-4 w-4 mr-1" />
-                        <span>{new Date(post.date).toLocaleDateString()}</span>
+                        <span suppressHydrationWarning>
+                          {formatDate(post.date)}
+                        </span>
                         <span className="mx-2">•</span>
                         <span>{post.readTime}</span>
                       </div>

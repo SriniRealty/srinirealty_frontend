@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://srinirealty.in/sitemap.xml
 
 # Disallow admin or private areas (if any)
 Disallow: /admin/

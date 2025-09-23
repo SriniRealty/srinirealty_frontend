@@ -236,6 +236,14 @@ export default function BlogPage() {
   const featuredPosts = blogPosts.filter((post) => post.featured);
   const regularPosts = blogPosts.filter((post) => !post.featured);
 
+  const formatDate = (d: string | Date) =>
+    new Intl.DateTimeFormat("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: "IST", // avoids TZ shifts across server/client
+    }).format(new Date(d));
+
   return (
     <div className="pt-16">
       {/* Hero Section */}
@@ -316,11 +324,12 @@ export default function BlogPage() {
                       </div>
                     </div>
                     <CardContent className="p-8">
-                      <div className="flex items-center text-sm text-gray-600 mb-4">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>{new Date(post.date).toLocaleDateString()}</span>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        <span suppressHydrationWarning>
+                          {formatDate(post.date)}
+                        </span>
                         <span className="mx-2">•</span>
-                        <Clock className="h-4 w-4 mr-1" />
                         <span>{post.readTime}</span>
                       </div>
                       <h3 className="font-heading text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-4 line-clamp-2 leading-tight">
@@ -399,11 +408,12 @@ export default function BlogPage() {
                     </div>
 
                     <CardContent className="md:w-2/3 p-8">
-                      <div className="flex items-center text-sm text-gray-600 mb-4">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>{new Date(post.date).toLocaleDateString()}</span>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        <span suppressHydrationWarning>
+                          {formatDate(post.date)}
+                        </span>
                         <span className="mx-2">•</span>
-                        <Clock className="h-4 w-4 mr-1" />
                         <span>{post.readTime}</span>
                       </div>
 

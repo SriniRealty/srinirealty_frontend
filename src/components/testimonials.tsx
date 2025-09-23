@@ -89,8 +89,8 @@ export default function Testimonials() {
                   loading="lazy"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src =
-                      "/placeholder.svg?height=64&width=64&text=User";
+                    // target.src =
+                    //   // "/placeholder.svg?height=64&width=64&text=User";
                   }}
                 />
                 <div className="text-left">
