@@ -2,8 +2,8 @@ import process from "process";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable standalone output for Docker deployment
-  output: "standalone",
+  // Remove standalone output for Vercel (Vercel handles this automatically)
+  // output: "standalone", // Remove this line for Vercel
 
   experimental: {
     serverActions: {
@@ -13,7 +13,7 @@ const nextConfig = {
 
   // Optimize images for production
   images: {
-    unoptimized: true,
+    unoptimized: false, // Change to false for Vercel optimization
     remotePatterns: [
       {
         protocol: "https",
