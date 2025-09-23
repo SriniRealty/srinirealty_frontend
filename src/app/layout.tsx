@@ -30,19 +30,6 @@ export const metadata: Metadata = {
   creator: "Srini Realty",
   publisher: "Srini Realty",
   robots: "index, follow",
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-    other: [
-      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
-    ],
-  },
-  manifest: "/site.webmanifest",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -58,11 +45,20 @@ export const metadata: Metadata = {
     description:
       "Discover premium villas, apartments, and commercial properties in Hyderabad with Srini Realty. Growing together since 2008.",
   },
-  other: {
-    "theme-color": "#ffffff",
-    "msapplication-TileColor": "#da532c",
-    "msapplication-config": "/browserconfig.xml",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    other: [
+      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
   },
+  manifest: "/site.webmanifest",
+  themeColor: "#ffffff",
 }
 
 export default function RootLayout({
@@ -79,7 +75,6 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#ffffff" />
-        <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className="font-body antialiased">

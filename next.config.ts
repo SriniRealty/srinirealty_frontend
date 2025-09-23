@@ -2,18 +2,14 @@ import process from "process";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove standalone output for Vercel (Vercel handles this automatically)
-  // output: "standalone", // Remove this line for Vercel
-
   experimental: {
     serverActions: {
-      bodySizeLimit: '10mb', // Increase from default 1mb to 10mb
+      bodySizeLimit: '10mb',
     },
   },
 
-  // Optimize images for production
   images: {
-    unoptimized: false, // Change to false for Vercel optimization
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: "https",
@@ -30,7 +26,6 @@ const nextConfig = {
     ],
   },
 
-  // Security headers
   async headers() {
     return [
       {
@@ -54,7 +49,6 @@ const nextConfig = {
           },
         ],
       },
-      // Favicon and static assets headers
       {
         source: '/favicon.ico',
         headers: [
@@ -98,10 +92,8 @@ const nextConfig = {
     ];
   },
 
-  // Ensure static files are served correctly
   async rewrites() {
     return [
-      // Ensure favicon is served from public folder
       {
         source: '/favicon.ico',
         destination: '/favicon.ico',
@@ -109,26 +101,18 @@ const nextConfig = {
     ];
   },
 
-  // Disable x-powered-by header for security
   poweredByHeader: false,
-
-  // Enable compression
   compress: true,
-
-  // Optimize for production
   swcMinify: true,
 
-  // Environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
 
-  // ESLint configuration
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // TypeScript configuration
   typescript: {
     ignoreBuildErrors: true,
   },
