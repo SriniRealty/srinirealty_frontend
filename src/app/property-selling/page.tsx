@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Upload,
   MapPin,
@@ -21,12 +27,12 @@ import {
   FileText,
   ImageIcon,
   File,
-} from "lucide-react"
-import { toast } from "sonner"
-import { numberToWords } from "@/utils/number-to-words"
-import { hyderabadAreas } from "@/data/hyderabad-areas"
-import { submitPropertySelling } from "@/app/actions/submit-property-selling"
-import { generatePropertyId } from "@/utils/generate-property-id"
+} from "lucide-react";
+import { toast } from "sonner";
+import { numberToWords } from "@/utils/number-to-words";
+import { hyderabadAreas } from "@/data/hyderabad-areas";
+import { submitPropertySelling } from "@/app/actions/submit-property-selling";
+import { generatePropertyId } from "@/utils/generate-property-id";
 
 export default function PropertySellingPage() {
   const [formData, setFormData] = useState({
@@ -43,12 +49,12 @@ export default function PropertySellingPage() {
     mapLink: "",
     urgency: "",
     description: "",
-  })
+  });
 
-  const [propertyDocuments, setPropertyDocuments] = useState<File[]>([])
-  const [layoutDocuments, setLayoutDocuments] = useState<File[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [previewId, setPreviewId] = useState("")
+  const [propertyDocuments, setPropertyDocuments] = useState<File[]>([]);
+  const [layoutDocuments, setLayoutDocuments] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewId, setPreviewId] = useState("");
 
   const propertyTypes = [
     "Open Plot",
@@ -58,68 +64,108 @@ export default function PropertySellingPage() {
     "Farm Land",
     "Office Space",
     "Other",
-  ]
+  ];
 
-  const facingOptions = ["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"]
+  const facingOptions = [
+    "North",
+    "North-East",
+    "East",
+    "South-East",
+    "South",
+    "South-West",
+    "West",
+    "North-West",
+  ];
 
-  const urgencyOptions = ["1 day", "1 week", "2 weeks", "1 month", "2 months", "3 months", "6 months"]
+  const urgencyOptions = [
+    "1 day",
+    "1 week",
+    "2 weeks",
+    "1 month",
+    "2 months",
+    "3 months",
+    "6 months",
+  ];
 
   // Generate preview ID when relevant fields change
   useEffect(() => {
-    if (formData.propertyType && formData.size && formData.facing && formData.plotNumber) {
-      const id = generatePropertyId(formData.propertyType, formData.size, formData.facing, formData.plotNumber)
-      setPreviewId(id)
+    if (
+      formData.propertyType &&
+      formData.size &&
+      formData.facing &&
+      formData.plotNumber
+    ) {
+      const id = generatePropertyId(
+        formData.propertyType,
+        formData.plotNumber,
+        formData.facing,
+        formData.size
+      );
+      setPreviewId(id);
     } else {
-      setPreviewId("")
+      setPreviewId("");
     }
-  }, [formData.propertyType, formData.size, formData.facing, formData.plotNumber])
+  }, [
+    formData.propertyType,
+    formData.size,
+    formData.facing,
+    formData.plotNumber,
+  ]);
 
   const getSizeUnit = () => {
-    if (["Villas", "Apartment Flat", "Office Space"].includes(formData.propertyType)) {
-      return "Sqft"
-    } else if (["Open Plot", "Independent House"].includes(formData.propertyType)) {
-      return "Sq Yards"
+    if (
+      ["Villas", "Apartment Flat", "Office Space"].includes(
+        formData.propertyType
+      )
+    ) {
+      return "Sqft";
+    } else if (
+      ["Open Plot", "Independent House"].includes(formData.propertyType)
+    ) {
+      return "Sq Yards";
     } else if (formData.propertyType === "Farm Land") {
-      return "Acres"
+      return "Acres";
     }
-    return "Sqft"
-  }
+    return "Sqft";
+  };
 
   const convertPriceToWords = (price: any) => {
-    if (!price) return ""
-    const words = numberToWords(price)
-    return words ? `${words} Only` : ""
-  }
+    if (!price) return "";
+    const words = numberToWords(price);
+    return words ? `${words} Only` : "";
+  };
 
   const getFileIcon = (file: File) => {
-    const fileType = file.type.toLowerCase()
+    const fileType = file.type.toLowerCase();
     if (fileType.includes("image")) {
-      return <ImageIcon className="h-4 w-4 text-blue-500" />
+      return <ImageIcon className="h-4 w-4 text-blue-500" />;
     } else if (fileType.includes("pdf")) {
-      return <FileText className="h-4 w-4 text-red-500" />
+      return <FileText className="h-4 w-4 text-red-500" />;
     } else if (fileType.includes("doc")) {
-      return <FileText className="h-4 w-4 text-blue-600" />
+      return <FileText className="h-4 w-4 text-blue-600" />;
     }
-    return <File className="h-4 w-4 text-gray-500" />
-  }
+    return <File className="h-4 w-4 text-gray-500" />;
+  };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
+  };
 
   const removeFile = (index: number, type: "property" | "layout") => {
     if (type === "property") {
-      setPropertyDocuments((prev) => prev.filter((_, i) => i !== index))
-      toast.success("File removed successfully")
+      setPropertyDocuments((prev) => prev.filter((_, i) => i !== index));
+      toast.success("File removed successfully");
     } else {
-      setLayoutDocuments((prev) => prev.filter((_, i) => i !== index))
-      toast.success("File removed successfully")
+      setLayoutDocuments((prev) => prev.filter((_, i) => i !== index));
+      toast.success("File removed successfully");
     }
-  }
+  };
 
   const isFormValid = () => {
     return (
@@ -132,50 +178,54 @@ export default function PropertySellingPage() {
       formData.sellerName &&
       formData.sellerPhone &&
       propertyDocuments.length > 0
-    )
-  }
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!isFormValid()) {
-      toast.error("Please fill all required fields and upload property documents")
-      return
+      toast.error(
+        "Please fill all required fields and upload property documents"
+      );
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // Create FormData object
-      const submitFormData = new FormData()
-      submitFormData.append("propertyType", formData.propertyType)
-      submitFormData.append("size", formData.size)
-      submitFormData.append("facing", formData.facing)
-      submitFormData.append("plotNumber", formData.plotNumber)
-      submitFormData.append("price", formData.price)
-      submitFormData.append("sellerType", formData.sellerType)
-      submitFormData.append("sellerName", formData.sellerName)
-      submitFormData.append("sellerPhone", formData.sellerPhone)
-      submitFormData.append("location", formData.location)
-      submitFormData.append("mapLink", formData.mapLink)
-      submitFormData.append("urgency", formData.urgency)
-      submitFormData.append("description", formData.description)
+      const submitFormData = new FormData();
+      submitFormData.append("propertyType", formData.propertyType);
+      submitFormData.append("size", formData.size);
+      submitFormData.append("facing", formData.facing);
+      submitFormData.append("plotNumber", formData.plotNumber);
+      submitFormData.append("price", formData.price);
+      submitFormData.append("sellerType", formData.sellerType);
+      submitFormData.append("sellerName", formData.sellerName);
+      submitFormData.append("sellerPhone", formData.sellerPhone);
+      submitFormData.append("location", formData.location);
+      submitFormData.append("mapLink", formData.mapLink);
+      submitFormData.append("urgency", formData.urgency);
+      submitFormData.append("description", formData.description);
 
       // Add files
       propertyDocuments.forEach((file, index) => {
-        submitFormData.append(`propertyDocument_${index}`, file)
-      })
+        submitFormData.append(`propertyDocument_${index}`, file);
+      });
       layoutDocuments.forEach((file, index) => {
-        submitFormData.append(`layoutDocument_${index}`, file)
-      })
+        submitFormData.append(`layoutDocument_${index}`, file);
+      });
 
-      const result = await submitPropertySelling(submitFormData)
+      const result = await submitPropertySelling(submitFormData);
 
       if (result.success) {
         toast.success(result.message, {
-          description: result.customId ? `Property ID: ${result.customId}` : undefined,
+          description: result.customId
+            ? `Property ID: ${result.customId}`
+            : undefined,
           duration: 5000,
-        })
+        });
         // Reset form completely
         setFormData({
           propertyType: "",
@@ -191,24 +241,28 @@ export default function PropertySellingPage() {
           mapLink: "",
           urgency: "",
           description: "",
-        })
-        setPropertyDocuments([])
-        setLayoutDocuments([])
-        setPreviewId("")
+        });
+        setPropertyDocuments([]);
+        setLayoutDocuments([]);
+        setPreviewId("");
       } else {
-        toast.error(result.message)
+        toast.error(result.message);
       }
     } catch (error) {
-      console.error("Submission error:", error)
-      toast.error("An unexpected error occurred. Please try again.")
+      console.error("Submission error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const validateFiles = (files: File[], maxSizePerFile = 10, maxTotalSize = 50) => {
-    const maxSizeBytes = maxSizePerFile * 1024 * 1024
-    const maxTotalBytes = maxTotalSize * 1024 * 1024
+  const validateFiles = (
+    files: File[],
+    maxSizePerFile = 10,
+    maxTotalSize = 50
+  ) => {
+    const maxSizeBytes = maxSizePerFile * 1024 * 1024;
+    const maxTotalBytes = maxTotalSize * 1024 * 1024;
 
     // Check individual file sizes
     for (const file of files) {
@@ -216,57 +270,75 @@ export default function PropertySellingPage() {
         return {
           valid: false,
           message: `File "${file.name}" exceeds ${maxSizePerFile}MB limit (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
-        }
+        };
       }
     }
 
     // Check total size
-    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
     if (totalSize > maxTotalBytes) {
       return {
         valid: false,
         message: `Total file size exceeds ${maxTotalSize}MB limit (${(totalSize / 1024 / 1024).toFixed(2)}MB)`,
-      }
+      };
     }
 
-    return { valid: true }
-  }
+    return { valid: true };
+  };
 
-  const handleFileUpload = (files: FileList | null, type: "property" | "layout") => {
-    if (!files) return
+  const handleFileUpload = (
+    files: FileList | null,
+    type: "property" | "layout"
+  ) => {
+    if (!files) return;
 
-    const fileArray = Array.from(files)
+    const fileArray = Array.from(files);
 
     // Validate files with new 10MB limit
-    const validation = validateFiles(fileArray, 10, 50)
+    const validation = validateFiles(fileArray, 10, 50);
     if (!validation.valid) {
-      toast.error(validation.message)
-      return
+      toast.error(validation.message);
+      return;
     }
 
     if (type === "property") {
-      setPropertyDocuments((prev) => [...prev, ...fileArray])
+      setPropertyDocuments((prev) => [...prev, ...fileArray]);
     } else if (type === "layout") {
-      setLayoutDocuments((prev) => [...prev, ...fileArray])
+      setLayoutDocuments((prev) => [...prev, ...fileArray]);
     }
 
-    toast.success(`${fileArray.length} file(s) added successfully!`)
-  }
+    toast.success(`${fileArray.length} file(s) added successfully!`);
+  };
 
-  const FilePreview = ({ files, type }: { files: File[]; type: "property" | "layout" }) => {
-    if (files.length === 0) return null
+  const FilePreview = ({
+    files,
+    type,
+  }: {
+    files: File[];
+    type: "property" | "layout";
+  }) => {
+    if (files.length === 0) return null;
 
     return (
       <div className="mt-4 space-y-2">
-        <h4 className="text-sm font-medium text-gray-700">Uploaded Files ({files.length})</h4>
+        <h4 className="text-sm font-medium text-gray-700">
+          Uploaded Files ({files.length})
+        </h4>
         <div className="max-h-40 overflow-y-auto space-y-2">
           {files.map((file, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+            <div
+              key={index}
+              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+            >
               <div className="flex items-center space-x-3 flex-1 min-w-0">
                 {getFileIcon(file)}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                  <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {file.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {formatFileSize(file.size)}
+                  </p>
                 </div>
               </div>
               <Button
@@ -282,8 +354,8 @@ export default function PropertySellingPage() {
           ))}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-4 md:py-8">
@@ -294,7 +366,9 @@ export default function PropertySellingPage() {
               <Home className="h-8 md:h-12 w-8 md:w-12 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">Sell Your Property</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">
+            Sell Your Property
+          </h1>
           <p className="text-sm md:text-lg text-gray-600">
             List your property with us and reach thousands of potential buyers
           </p>
@@ -327,7 +401,9 @@ export default function PropertySellingPage() {
                   </Label>
                   <Select
                     value={formData.propertyType}
-                    onValueChange={(value) => setFormData({ ...formData, propertyType: value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, propertyType: value })
+                    }
                   >
                     <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-orange-400 focus:border-orange-500">
                       <SelectValue placeholder="Select property type" />
@@ -347,7 +423,10 @@ export default function PropertySellingPage() {
                 </div>
 
                 <div className="relative z-10">
-                  <Label htmlFor="size" className="text-base md:text-lg font-semibold text-gray-700 block mb-2 w-full">
+                  <Label
+                    htmlFor="size"
+                    className="text-base md:text-lg font-semibold text-gray-700 block mb-2 w-full"
+                  >
                     Size ({getSizeUnit()}) *
                   </Label>
                   <Input
@@ -355,7 +434,9 @@ export default function PropertySellingPage() {
                     type="number"
                     placeholder={`Enter size in ${getSizeUnit()}`}
                     value={formData.size}
-                    onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, size: e.target.value })
+                    }
                     className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-blue-400 focus:border-blue-500"
                   />
                 </div>
@@ -369,7 +450,9 @@ export default function PropertySellingPage() {
                   </Label>
                   <Select
                     value={formData.facing}
-                    onValueChange={(value) => setFormData({ ...formData, facing: value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, facing: value })
+                    }
                   >
                     <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-blue-400 focus:border-blue-500">
                       <SelectValue placeholder="Select facing direction" />
@@ -401,7 +484,9 @@ export default function PropertySellingPage() {
                     type="number"
                     placeholder="Enter plot number"
                     value={formData.plotNumber}
-                    onChange={(e) => setFormData({ ...formData, plotNumber: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, plotNumber: e.target.value })
+                    }
                     className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-blue-400 focus:border-blue-500"
                   />
                 </div>
@@ -419,7 +504,9 @@ export default function PropertySellingPage() {
                     type="text"
                     placeholder="Enter price in rupees"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
                     className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-blue-400 focus:border-blue-500"
                   />
                   {formData.price && (
@@ -440,17 +527,22 @@ export default function PropertySellingPage() {
                     type="file"
                     multiple
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileUpload(e.target.files, "property")}
+                    onChange={(e) =>
+                      handleFileUpload(e.target.files, "property")
+                    }
                     className="hidden"
                     id="property-docs"
                   />
                   <label htmlFor="property-docs" className="cursor-pointer">
-                    <span className="text-sm md:text-lg text-blue-600 hover:text-blue-800">Choose files to upload</span>
+                    <span className="text-sm md:text-lg text-blue-600 hover:text-blue-800">
+                      Choose files to upload
+                    </span>
                     <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
                       PDF, DOC, JPG, PNG files accepted (Max 10MB each)
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      You can select multiple files at once or upload them one by one
+                      You can select multiple files at once or upload them one
+                      by one
                     </p>
                   </label>
                 </div>
@@ -477,16 +569,24 @@ export default function PropertySellingPage() {
                 </Label>
                 <Select
                   value={formData.sellerType}
-                  onValueChange={(value) => setFormData({ ...formData, sellerType: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, sellerType: value })
+                  }
                 >
                   <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-purple-400 focus:border-purple-500">
                     <SelectValue placeholder="Select seller type" />
                   </SelectTrigger>
                   <SelectContent className="z-50 bg-white border-2 border-gray-200 shadow-lg">
-                    <SelectItem value="Owner" className="hover:bg-purple-50 focus:bg-purple-100 text-gray-800">
+                    <SelectItem
+                      value="Owner"
+                      className="hover:bg-purple-50 focus:bg-purple-100 text-gray-800"
+                    >
                       Owner
                     </SelectItem>
-                    <SelectItem value="Agent" className="hover:bg-purple-50 focus:bg-purple-100 text-gray-800">
+                    <SelectItem
+                      value="Agent"
+                      className="hover:bg-purple-50 focus:bg-purple-100 text-gray-800"
+                    >
                       Agent
                     </SelectItem>
                     <SelectItem
@@ -513,7 +613,9 @@ export default function PropertySellingPage() {
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.sellerName}
-                    onChange={(e) => setFormData({ ...formData, sellerName: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sellerName: e.target.value })
+                    }
                     className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-purple-400 focus:border-purple-500"
                   />
                 </div>
@@ -531,7 +633,9 @@ export default function PropertySellingPage() {
                     type="tel"
                     placeholder="Enter phone number"
                     value={formData.sellerPhone}
-                    onChange={(e) => setFormData({ ...formData, sellerPhone: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sellerPhone: e.target.value })
+                    }
                     className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-purple-400 focus:border-purple-500"
                   />
                 </div>
@@ -542,7 +646,9 @@ export default function PropertySellingPage() {
           {/* Additional Information Section */}
           <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
-              <CardTitle className="text-lg md:text-2xl">Additional Information (Optional)</CardTitle>
+              <CardTitle className="text-lg md:text-2xl">
+                Additional Information (Optional)
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
               <div className="grid md:grid-cols-2 gap-4 md:gap-6">
@@ -556,7 +662,9 @@ export default function PropertySellingPage() {
                   </Label>
                   <Select
                     value={formData.location}
-                    onValueChange={(value) => setFormData({ ...formData, location: value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, location: value })
+                    }
                   >
                     <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-orange-400 focus:border-orange-500">
                       <SelectValue placeholder="Select location" />
@@ -584,7 +692,9 @@ export default function PropertySellingPage() {
                   </Label>
                   <Select
                     value={formData.urgency}
-                    onValueChange={(value) => setFormData({ ...formData, urgency: value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, urgency: value })
+                    }
                   >
                     <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-orange-400 focus:border-orange-500">
                       <SelectValue placeholder="Select urgency" />
@@ -605,7 +715,10 @@ export default function PropertySellingPage() {
               </div>
 
               <div>
-                <Label htmlFor="mapLink" className="text-base md:text-lg font-semibold text-gray-700 block mb-2 w-full">
+                <Label
+                  htmlFor="mapLink"
+                  className="text-base md:text-lg font-semibold text-gray-700 block mb-2 w-full"
+                >
                   <MapPin className="inline w-4 md:w-5 h-4 md:h-5 mr-2" />
                   Google Maps Link
                 </Label>
@@ -614,7 +727,9 @@ export default function PropertySellingPage() {
                   type="url"
                   placeholder="Paste Google Maps link here"
                   value={formData.mapLink}
-                  onChange={(e) => setFormData({ ...formData, mapLink: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, mapLink: e.target.value })
+                  }
                   className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-orange-400 focus:border-orange-500"
                 />
               </div>
@@ -640,7 +755,9 @@ export default function PropertySellingPage() {
                     <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
                       Floor plans, site layouts, etc. (Max 10MB each)
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">Upload single files or select multiple files at once</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Upload single files or select multiple files at once
+                    </p>
                   </label>
                 </div>
                 <FilePreview files={layoutDocuments} type="layout" />
@@ -657,7 +774,9 @@ export default function PropertySellingPage() {
                   id="description"
                   placeholder="Describe your property... (e.g., amenities, nearby facilities, special features)"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   className="min-h-[100px] md:min-h-[120px] text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-orange-400 focus:border-orange-500"
                 />
               </div>
@@ -682,7 +801,8 @@ export default function PropertySellingPage() {
             </Button>
             {!isFormValid() && (
               <p className="text-red-500 mt-3 text-xs md:text-sm">
-                Please fill all required fields (including plot number) and upload property documents
+                Please fill all required fields (including plot number) and
+                upload property documents
               </p>
             )}
             <p className="text-gray-600 mt-2 md:mt-4 text-xs md:text-sm">
@@ -692,5 +812,5 @@ export default function PropertySellingPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

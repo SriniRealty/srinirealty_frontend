@@ -247,7 +247,6 @@ export default function DevelopPropertyPage() {
             <CardContent className="p-4 md:p-8">
               {/* Property Information */}
               <div className="space-y-4 md:space-y-6">
-                <h3 className="text-lg md:text-xl font-semibold text-gray-700 border-b pb-2">Property Information</h3>
 
                 <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                   <div className="relative z-20">

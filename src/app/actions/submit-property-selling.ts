@@ -58,7 +58,7 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
     const totalFileSize = [...propertyDocuments, ...layoutDocuments].reduce((sum, file) => sum + file.size, 0)
     console.log(`Total file size: ${(totalFileSize / 1024 / 1024).toFixed(2)}MB`)
 
-    if (totalFileSize > 8 * 1024 * 1024) { // 8MB limit
+    if (totalFileSize > 10 * 1024 * 1024) { // 8MB limit
       return {
         success: false,
         message: `Total file size exceeds 8MB limit. Current total: ${(totalFileSize / 1024 / 1024).toFixed(2)}MB`,

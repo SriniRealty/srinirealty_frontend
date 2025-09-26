@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --primary-text: #1a1a1a;
@@ -6,7 +8,7 @@
   --cta: #2563eb;
   --cta-hover: #1d4ed8;
   --primary: #1f2937;
-  --secondary: #6b7280;
+  --secondary: #6b7280; 
   --highlight: #fbbf24;
   --border-gray: #e5e7eb;
   --whatsapp-green: #25d366;

@@ -1,34 +1,21 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Search,
-  Home,
-  MapPin,
-  IndianRupee,
-  Loader2,
-  User,
-  Phone,
-  ArrowUp,
-} from "lucide-react";
-import { toast } from "sonner";
-import { hyderabadAreas } from "@/data/hyderabad-areas";
-import { submitPropertyBuying } from "@/app/actions/submit-property-buying";
+import type React from "react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { Search, Home, MapPin, IndianRupee, Loader2, User, Phone, ArrowUp, ArrowRight } from "lucide-react"
+import { toast } from "sonner"
+import { hyderabadAreas } from "@/data/hyderabad-areas"
+import { submitPropertyBuying } from "@/app/actions/submit-property-buying"
 
 export default function PropertyBuyingPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     propertyType: "",
     size: "",
@@ -37,9 +24,10 @@ export default function PropertyBuyingPage() {
     name: "",
     phone: "",
     description: "",
-  });
+  })
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const propertyTypes = [
     "Open Plot",
@@ -49,107 +37,119 @@ export default function PropertyBuyingPage() {
     "Farm Land",
     "Office Space",
     "Any Type",
-  ];
+  ]
 
   const getSizeOptions = () => {
-    if (
-      ["Villas", "Apartment Flat", "Office Space"].includes(
-        formData.propertyType
-      )
-    ) {
-      return [
-        "500-1000 Sqft",
-        "1000-1500 Sqft",
-        "1500-2000 Sqft",
-        "2000-3000 Sqft",
-        "3000-5000 Sqft",
-        "5000+ Sqft",
-      ];
-    } else if (
-      ["Open Plot", "Independent House"].includes(formData.propertyType)
-    ) {
-      return [
-        "100-200 Sq Yards",
-        "200-300 Sq Yards",
-        "300-500 Sq Yards",
-        "500-1000 Sq Yards",
-        "1000+ Sq Yards",
-      ];
+    if (["Villas", "Apartment Flat", "Office Space"].includes(formData.propertyType)) {
+      return ["500-1000 Sqft", "1000-1500 Sqft", "1500-2000 Sqft", "2000-3000 Sqft", "3000-5000 Sqft", "5000+ Sqft"]
+    } else if (["Open Plot", "Independent House"].includes(formData.propertyType)) {
+      return ["100-200 Sq Yards", "200-300 Sq Yards", "300-500 Sq Yards", "500-1000 Sq Yards", "1000+ Sq Yards"]
     } else if (formData.propertyType === "Farm Land") {
-      return [
-        "1-2 Acres",
-        "2-5 Acres",
-        "5-10 Acres",
-        "10-20 Acres",
-        "20+ Acres",
-      ];
+      return ["1-2 Acres", "2-5 Acres", "5-10 Acres", "10-20 Acres", "20+ Acres"]
     }
-    return ["Any Size"];
-  };
+    return ["Any Size"]
+  }
 
-  const budgetOptions = [
-    "Below ₹20 Lakhs",
-    "₹20–50 Lakhs",
-    "₹50 L – ₹1 Cr",
-    "₹1–2 Cr",
-    "₹2–5 Cr",
-    "₹5 Cr+",
-  ];
+  const budgetOptions = ["Below ₹20 Lakhs", "₹20–50 Lakhs", "₹50 L – ₹1 Cr", "₹1–2 Cr", "₹2–5 Cr", "₹5 Cr+"]
 
   const isFormValid = () => {
-    return (
-      formData.propertyType &&
-      formData.budget &&
-      formData.name &&
-      formData.phone
-    );
-  };
+    return formData.propertyType && formData.budget && formData.name && formData.phone
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!isFormValid()) {
-      toast.error("Please fill all required fields marked with *");
-      return;
+      toast.error("Please fill all required fields marked with *")
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
       // Create FormData object
-      const submitFormData = new FormData();
-      submitFormData.append("propertyType", formData.propertyType);
-      submitFormData.append("size", formData.size);
-      submitFormData.append("location", formData.location);
-      submitFormData.append("budget", formData.budget);
-      submitFormData.append("name", formData.name);
-      submitFormData.append("phone", formData.phone);
-      submitFormData.append("description", formData.description);
+      const submitFormData = new FormData()
+      submitFormData.append("propertyType", formData.propertyType)
+      submitFormData.append("size", formData.size)
+      submitFormData.append("location", formData.location)
+      submitFormData.append("budget", formData.budget)
+      submitFormData.append("name", formData.name)
+      submitFormData.append("phone", formData.phone)
+      submitFormData.append("description", formData.description)
 
-      const result = await submitPropertyBuying(submitFormData);
+      const result = await submitPropertyBuying(submitFormData)
 
       if (result.success) {
-        toast.success(result.message);
-        // Reset form completely
-        setFormData({
-          propertyType: "",
-          size: "",
-          location: "",
-          budget: "",
-          name: "",
-          phone: "",
-          description: "",
-        });
+        toast.success(result.message)
+
+        // Show redirecting state
+        setIsRedirecting(true)
+
+        // Build search parameters for redirection
+        const searchParams = new URLSearchParams()
+
+        // Location is mandatory - always add if provided and not "Any Location"
+        if (formData.location && formData.location !== "Any Location") {
+          searchParams.set("location", formData.location)
+        }
+
+        // // Property type is optional - add if provided and not "Any Type"
+        // if (formData.propertyType && formData.propertyType !== "Any Type") {
+        //   searchParams.set("type", formData.propertyType)
+        // }
+
+        // Add budget for additional context
+        if (formData.budget) {
+          searchParams.set("budget", formData.budget)
+        }
+
+        // Add a flag to indicate this came from the form
+        searchParams.set("from", "form")
+
+        // Redirect after a short delay for smooth UX
+        setTimeout(() => {
+          const queryString = searchParams.toString()
+          router.push(`/buy-property${queryString ? `?${queryString}` : ""}`)
+        }, 1500)
       } else {
-        toast.error(result.message);
+        toast.error(result.message)
+        setIsSubmitting(false)
       }
     } catch (error) {
-      console.error("Submission error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      console.error("Submission error:", error)
+      toast.error("An unexpected error occurred. Please try again.")
+      setIsSubmitting(false)
     }
-  };
+  }
+
+  // Show loading screen during redirection
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative mb-8">
+            <div className="w-24 h-24 mx-auto bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center animate-pulse">
+              <Search className="h-12 w-12 text-white animate-bounce" />
+            </div>
+            <div className="absolute -inset-4 bg-gradient-to-r from-green-400 to-blue-400 rounded-full opacity-20 animate-ping"></div>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Finding Your Properties...</h2>
+          <p className="text-lg text-gray-600 mb-2">
+            {formData.location && formData.location !== "Any Location"
+              ? `Searching in ${formData.location}`
+              : "Searching all locations"}
+          </p>
+          {formData.propertyType && formData.propertyType !== "Any Type" && (
+            <p className="text-md text-gray-500">Looking for {formData.propertyType} properties</p>
+          )}
+          <div className="flex items-center justify-center mt-6">
+            <Loader2 className="h-6 w-6 animate-spin text-green-600 mr-2" />
+            <span className="text-green-600 font-medium">Redirecting to results...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-4 md:py-8">
@@ -160,12 +160,9 @@ export default function PropertyBuyingPage() {
               <Search className="h-8 md:h-12 w-8 md:w-12 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">
-            Find Your Dream Property
-          </h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">Find Your Dream Property</h1>
           <p className="text-sm md:text-lg text-gray-600">
-            Tell us what you're looking for and we'll help you find the perfect
-            property
+            Tell us what you're looking for and we'll help you find the perfect property
           </p>
         </div>
 
@@ -224,18 +221,12 @@ export default function PropertyBuyingPage() {
                   </Label>
                   <Select
                     value={formData.size}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, size: value })
-                    }
+                    onValueChange={(value) => setFormData({ ...formData, size: value })}
                     disabled={!formData.propertyType}
                   >
                     <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-green-400 focus:border-green-500 disabled:opacity-50">
                       <SelectValue
-                        placeholder={
-                          formData.propertyType
-                            ? "Select size range"
-                            : "Select property type first"
-                        }
+                        placeholder={formData.propertyType ? "Select size range" : "Select property type first"}
                       />
                     </SelectTrigger>
                     <SelectContent className="z-50 bg-white border-2 border-gray-200 shadow-lg">
@@ -262,9 +253,7 @@ export default function PropertyBuyingPage() {
                   </Label>
                   <Select
                     value={formData.location}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, location: value })
-                    }
+                    onValueChange={(value) => setFormData({ ...formData, location: value })}
                   >
                     <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-green-400 focus:border-green-500">
                       <SelectValue placeholder="Select preferred area" />
@@ -279,10 +268,7 @@ export default function PropertyBuyingPage() {
                           {location}
                         </SelectItem>
                       ))}
-                      <SelectItem
-                        value="Any Location"
-                        className="hover:bg-green-50 focus:bg-green-100 text-gray-800"
-                      >
+                      <SelectItem value="Any Location" className="hover:bg-green-50 focus:bg-green-100 text-gray-800">
                         Any Location
                       </SelectItem>
                     </SelectContent>
@@ -299,9 +285,7 @@ export default function PropertyBuyingPage() {
                   </Label>
                   <Select
                     value={formData.budget}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, budget: value })
-                    }
+                    onValueChange={(value) => setFormData({ ...formData, budget: value })}
                   >
                     <SelectTrigger className="w-full h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-green-400 focus:border-green-500">
                       <SelectValue placeholder="Select your budget" />
@@ -322,9 +306,7 @@ export default function PropertyBuyingPage() {
               </div>
 
               <div className="border-t pt-4 md:pt-6">
-                <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-3 md:mb-4">
-                  Contact Information
-                </h3>
+                <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-3 md:mb-4">Contact Information</h3>
                 <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                   <div>
                     <Label
@@ -339,9 +321,7 @@ export default function PropertyBuyingPage() {
                       type="text"
                       placeholder="Enter your full name"
                       value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-green-400 focus:border-green-500"
                     />
                   </div>
@@ -359,9 +339,7 @@ export default function PropertyBuyingPage() {
                       type="tel"
                       placeholder="Enter phone number"
                       value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="h-10 md:h-12 text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-green-400 focus:border-green-500"
                     />
                   </div>
@@ -379,9 +357,7 @@ export default function PropertyBuyingPage() {
                   id="description"
                   placeholder="Tell us more about what you're looking for... (e.g., number of bedrooms, parking, amenities, etc.)"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="min-h-[100px] md:min-h-[120px] text-sm md:text-lg bg-white border-2 border-gray-300 hover:border-green-400 focus:border-green-500"
                 />
               </div>
@@ -398,16 +374,17 @@ export default function PropertyBuyingPage() {
                       Submitting...
                     </>
                   ) : (
-                    "Find My Property"
+                    <>
+                      Find My Property
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
                   )}
                 </Button>
                 {!isFormValid() && (
-                  <p className="text-red-500 mt-3 text-xs md:text-sm">
-                    Please fill all required fields marked with *
-                  </p>
+                  <p className="text-red-500 mt-3 text-xs md:text-sm">Please fill all required fields marked with *</p>
                 )}
                 <p className="text-gray-600 mt-2 md:mt-4 text-xs md:text-sm">
-                  We'll contact you within 24 hours with matching properties
+                  We'll show you matching properties instantly
                 </p>
               </div>
             </form>
@@ -415,5 +392,5 @@ export default function PropertyBuyingPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

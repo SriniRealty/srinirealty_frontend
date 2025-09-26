@@ -15,7 +15,7 @@ import {
   ShoppingCart,
   Hammer,
   ChevronDown,
-  Shield,
+  Search,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -53,7 +53,7 @@ export default function Navbar() {
     { label: "Farms", href: "/farms" },
   ]
 
-  // Desktop navigation items (removed blog)
+  // Desktop navigation items (replaced admin with buy property)
   const desktopNavItems = [
     { label: "Property Selling", href: "/property-selling" },
     { label: "Property Buying", href: "/property-buying" },
@@ -62,12 +62,13 @@ export default function Navbar() {
     { label: "Contact", href: "/contact" },
   ]
 
-  // Mobile navigation items (removed blog)
+  // Mobile navigation items (replaced admin with buy property)
   const mobileNavItems = [
     { label: "Home", href: "/", icon: Home },
     { label: "Property Selling", href: "/property-selling", icon: FileText },
     { label: "Property Buying", href: "/property-buying", icon: ShoppingCart },
     { label: "Develop Property", href: "/develop-property", icon: Hammer },
+    { label: "Buy Property", href: "/buy-property", icon: Search },
     { label: "Villas", href: "/villas", icon: Building2 },
     { label: "Open Flats", href: "/open-flats", icon: Building },
     { label: "Apartments", href: "/apartments", icon: Building },
@@ -79,7 +80,6 @@ export default function Navbar() {
     { label: "Farms", href: "/farms", icon: TreePine },
     { label: "About Us", href: "/about", icon: Users },
     { label: "Contact", href: "/contact", icon: Phone },
-    { label: "Admin Login", href: "/admin/login", icon: Shield },
   ]
 
   // Check if any property type is active
@@ -135,7 +135,7 @@ export default function Navbar() {
                     <ChevronDown className="h-3 w-3" />
                     <span
                       className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-300 cursor-pointer ${
-                        isPropertyActive ? "w-full" : "w-0 group-hover:w-full"
+                        isPropertyActive ? "w-full text-blue-500" : "group-hover:w-full text-gray-500"
                       }`}
                     ></span>
                   </Button>
@@ -150,7 +150,7 @@ export default function Navbar() {
                         href={property.href}
                         className={`w-full px-4 py-3 text-sm font-medium transition-all duration-200 hover:bg-purple-50 hover:text-purple-600 flex items-center cursor-pointer${
                           pathname === property.href
-                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-blue-500"
                             : "text-slate-600"
                         }`}
                       >
@@ -161,14 +161,18 @@ export default function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Admin Login Button */}
-              <Link href="/admin/login">
+              {/* Buy Property Button */}
+              <Link href="/buy-property">
                 <Button
                   variant="outline"
-                  className="ml-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 bg-transparent"
+                  className={`ml-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 bg-transparent ${
+                    pathname === "/buy-property"
+                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent"
+                      : ""
+                  }`}
                 >
-                  <Shield className="h-4 w-4 mr-2" />
-                  Admin
+                  <Search className="h-4 w-4 mr-2" />
+                  Buy Property
                 </Button>
               </Link>
 

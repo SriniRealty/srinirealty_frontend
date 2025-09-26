@@ -103,7 +103,7 @@ export default function AdminLoginPage() {
   return (
     <>
       <div className="relative">
-        <Button onClick={RedirectHome} className="absolute top-12 left-12 text-white bg-blue-400 p-4 rounded">
+        <Button onClick={RedirectHome} className="absolute top-12 left-12 text-white hover:bg-blue-500 hover:text-white bg-blue-400 p-4 rounded">
           <ArrowBigLeftDash className="h-4 w-4" />
           Back to Home
         </Button>
