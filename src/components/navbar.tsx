@@ -68,7 +68,7 @@ export default function Navbar() {
     { label: "Property Selling", href: "/property-selling", icon: FileText },
     { label: "Property Buying", href: "/property-buying", icon: ShoppingCart },
     { label: "Develop Property", href: "/develop-property", icon: Hammer },
-    { label: "Buy Property", href: "/buy-property", icon: Search },
+    { label: "Search Property", href: "/buy-property", icon: Search },
     { label: "Villas", href: "/villas", icon: Building2 },
     { label: "Open Flats", href: "/open-flats", icon: Building },
     { label: "Apartments", href: "/apartments", icon: Building },
@@ -172,7 +172,7 @@ export default function Navbar() {
                   }`}
                 >
                   <Search className="h-4 w-4 mr-2" />
-                  Buy Property
+                  Search Property
                 </Button>
               </Link>
 

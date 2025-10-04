@@ -2,8 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { uploadMultipleFiles } from "@/lib/file-upload" // Fixed import path
+import { uploadMultipleFiles } from "@/lib/file-upload"
 import { generatePropertyId } from "@/utils/generate-property-id"
+import { sendPropertySellingSMS } from "@/lib/msg91"
 
 export interface SubmissionResult {
   success: boolean
@@ -11,12 +12,6 @@ export interface SubmissionResult {
   errors?: Record<string, string[]>
   statusCode?: number
   customId?: string
-}
-
-type UploadResult = { success: boolean; url?: string; error?: string }
-
-function isSuccessfulWithUrl(r: UploadResult): r is UploadResult & { success: true; url: string } {
-  return r.success === true && typeof r.url === "string"
 }
 
 export async function submitPropertySelling(formData: FormData): Promise<SubmissionResult> {
@@ -43,25 +38,41 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
 
     // Extract files from FormData
     for (const [key, value] of formData.entries()) {
-      if (key.startsWith("propertyDocument_") && value instanceof File && value.size > 0) {
+      if (key.startsWith("propertyDocument_") && value instanceof File) {
         propertyDocuments.push(value)
-      } else if (key.startsWith("layoutDocument_") && value instanceof File && value.size > 0) {
+      } else if (key.startsWith("layoutDocument_") && value instanceof File) {
         layoutDocuments.push(value)
       }
     }
 
-    // Log file sizes for debugging
-    console.log("Property documents:", propertyDocuments.map(f => ({name: f.name, size: f.size})))
-    console.log("Layout documents:", layoutDocuments.map(f => ({name: f.name, size: f.size})))
+    // Upload files to Supabase Storage
+    let documentUrls: string[] = []
+    let imageUrls: string[] = []
 
-    // Check total size before processing
-    const totalFileSize = [...propertyDocuments, ...layoutDocuments].reduce((sum, file) => sum + file.size, 0)
-    console.log(`Total file size: ${(totalFileSize / 1024 / 1024).toFixed(2)}MB`)
-
-    if (totalFileSize > 10 * 1024 * 1024) { // 8MB limit
+    try {
+      if (propertyDocuments.length > 0) {
+        console.log(`Uploading ${propertyDocuments.length} property documents`)
+        const documentResults = await uploadMultipleFiles(propertyDocuments, "property-documents")
+        documentUrls = documentResults
+          .filter((result) => result.success)
+          .map((result) => result.url)
+          .filter((url) => url !== undefined) as string[]
+        console.log(`Successfully uploaded ${documentUrls.length} property documents`)
+      }
+      if (layoutDocuments.length > 0) {
+        console.log(`Uploading ${layoutDocuments.length} layout documents`)
+        const imageResults = await uploadMultipleFiles(layoutDocuments, "property-images")
+        imageUrls = imageResults
+          .filter((result) => result.success)
+          .map((result) => result.url)
+          .filter((url) => url !== undefined) as string[]
+        console.log(`Successfully uploaded ${imageUrls.length} layout documents`)
+      }
+    } catch (uploadError) {
+      console.error("File upload error:", uploadError)
       return {
         success: false,
-        message: `Total file size exceeds 8MB limit. Current total: ${(totalFileSize / 1024 / 1024).toFixed(2)}MB`,
+        message: "File upload failed. Please try again with smaller files.",
         statusCode: 413,
       }
     }
@@ -89,55 +100,17 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
 
     // Generate custom property ID
     const customId = generatePropertyId(propertyType, size, facing, plotNumber)
+
     console.log("Generated custom ID:", customId)
-
-    // Upload files to Supabase Storage
-    let documentUrls: string[] = []
-    let imageUrls: string[] = []
-
-    try {
-      if (propertyDocuments.length > 0) {
-        console.log(`Uploading ${propertyDocuments.length} property documents`)
-        const documentResults = await uploadMultipleFiles(propertyDocuments, "property-documents")
-        documentUrls = documentResults.filter(isSuccessfulWithUrl).map(r => r.url)
-        console.log(`Successfully uploaded ${documentUrls.length} property documents`)
-        
-        // Check for upload failures
-        const failedUploads = documentResults.filter(r => !r.success)
-        if (failedUploads.length > 0) {
-          console.error("Failed uploads:", failedUploads)
-        }
-      }
-      
-      if (layoutDocuments.length > 0) {
-        console.log(`Uploading ${layoutDocuments.length} layout documents`)
-        const imageResults = await uploadMultipleFiles(layoutDocuments, "property-images")
-        imageUrls = imageResults.filter(isSuccessfulWithUrl).map(r => r.url)
-        console.log(`Successfully uploaded ${imageUrls.length} layout documents`)
-        
-        // Check for upload failures
-        const failedUploads = imageResults.filter(r => !r.success)
-        if (failedUploads.length > 0) {
-          console.error("Failed uploads:", failedUploads)
-        }
-      }
-    } catch (uploadError) {
-      console.error("File upload error:", uploadError)
-      return {
-        success: false,
-        message: "File upload failed. Please try again with smaller files.",
-        statusCode: 413,
-      }
-    }
 
     // Prepare data for database insertion
     const dbData = {
       property_type: propertyType,
-      size: size ? (Number.isFinite(Number(size)) ? Number(size) : null) : null,
+      size: size ? Number.parseInt(size) : null,
       facing: facing,
-      plot_number: plotNumber ? (Number.isFinite(Number(plotNumber)) ? Number(plotNumber) : null) : null,
+      plot_number: plotNumber ? Number.parseInt(plotNumber) : null,
       custom_id: customId,
-      price: price ? (Number.isFinite(Number(price)) ? Number(price) : null) : null,
+      price: price,
       seller_type: sellerType,
       seller_name: sellerName,
       seller_phone: sellerPhone,
@@ -148,6 +121,7 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
       document_urls: documentUrls,
       image_urls: imageUrls,
       processing_status: "pending",
+      sms_sent: false,
       raw_data: {
         submitted_at: new Date().toISOString(),
         form_version: "1.0",
@@ -156,7 +130,6 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
         files_uploaded: {
           property_documents: propertyDocuments.length,
           layout_documents: layoutDocuments.length,
-          successful_uploads: documentUrls.length + imageUrls.length,
         },
       },
     }
@@ -181,6 +154,38 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
 
     console.log("Successfully inserted selling submission:", insertedData.id, "with custom ID:", customId)
 
+    // Send SMS notification
+    try {
+      console.log("Sending SMS to:", sellerPhone)
+      const smsResult = await sendPropertySellingSMS(sellerPhone, customId, sellerName)
+
+      // Update SMS status in database
+      const smsUpdateData: any = {
+        sms_sent: smsResult.success,
+        sms_sent_at: new Date().toISOString(),
+      }
+
+      if (smsResult.success) {
+        smsUpdateData.sms_message_id = smsResult.messageId
+        console.log("SMS sent successfully:", smsResult.messageId)
+      } else {
+        smsUpdateData.sms_error = smsResult.error
+        console.error("SMS failed:", smsResult.error)
+      }
+
+      await supabase.from("property_selling_submissions").update(smsUpdateData).eq("id", insertedData.id)
+    } catch (smsError) {
+      console.error("SMS sending error:", smsError)
+      // Don't fail the submission if SMS fails
+      await supabase
+        .from("property_selling_submissions")
+        .update({
+          sms_sent: false,
+          sms_error: smsError instanceof Error ? smsError.message : "Unknown SMS error",
+        })
+        .eq("id", insertedData.id)
+    }
+
     // Revalidate admin dashboard
     revalidatePath("/admin/dashboard")
 
@@ -192,16 +197,6 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
     }
   } catch (error) {
     console.error("Form submission error:", error)
-    
-    // Check if it's a body size limit error
-    if (error instanceof Error && error.message.includes("Body exceeded")) {
-      return {
-        success: false,
-        message: "Files are too large. Please reduce file sizes and try again.",
-        statusCode: 413,
-      }
-    }
-    
     return {
       success: false,
       message: error instanceof Error ? error.message : "Failed to submit form. Please try again.",

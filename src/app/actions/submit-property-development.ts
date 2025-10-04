@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { sendPropertyDevelopmentSMS } from "@/lib/msg91"
 
 export interface SubmissionResult {
   success: boolean
@@ -47,6 +48,7 @@ export async function submitPropertyDevelopment(formData: FormData): Promise<Sub
       phone: phone,
       project_description: description || null,
       processing_status: "pending",
+      sms_sent: false,
       raw_data: {
         submitted_at: new Date().toISOString(),
         form_version: "1.0",
@@ -73,6 +75,38 @@ export async function submitPropertyDevelopment(formData: FormData): Promise<Sub
     }
 
     console.log("Successfully inserted development submission:", insertedData.id)
+
+    // Send SMS notification
+    try {
+      console.log("Sending SMS to:", phone)
+      const smsResult = await sendPropertyDevelopmentSMS(phone, name)
+
+      // Update SMS status in database
+      const smsUpdateData: any = {
+        sms_sent: smsResult.success,
+        sms_sent_at: new Date().toISOString(),
+      }
+
+      if (smsResult.success) {
+        smsUpdateData.sms_message_id = smsResult.messageId
+        console.log("SMS sent successfully:", smsResult.messageId)
+      } else {
+        smsUpdateData.sms_error = smsResult.error
+        console.error("SMS failed:", smsResult.error)
+      }
+
+      await supabase.from("property_development_submissions").update(smsUpdateData).eq("id", insertedData.id)
+    } catch (smsError) {
+      console.error("SMS sending error:", smsError)
+      // Don't fail the submission if SMS fails
+      await supabase
+        .from("property_development_submissions")
+        .update({
+          sms_sent: false,
+          sms_error: smsError instanceof Error ? smsError.message : "Unknown SMS error",
+        })
+        .eq("id", insertedData.id)
+    }
 
     // Revalidate admin dashboard
     revalidatePath("/admin/dashboard")
