@@ -1,21 +1,35 @@
+# Main Robots.txt for Srini Realty
 User-agent: *
 Allow: /
-
-# Sitemap location
-Sitemap: https://srinirealty.in/sitemap.xml
-
-# Disallow admin or private areas (if any)
 Disallow: /admin/
 Disallow: /api/
 Disallow: /_next/
 Disallow: /private/
 
-# Allow all search engines to crawl
+# Allow crawling of property images
+Allow: /images/
+Allow: /public/images/
+
+# Specific bots
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: Googlebot-Image
+Allow: /images/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
-# Crawl delay (optional)
+User-agent: Baiduspider
+Crawl-delay: 2
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.srinirealty.in/sitemap.xml
+
+# Crawl delay
 Crawl-delay: 1
