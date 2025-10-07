@@ -1,538 +1,624 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect, Suspense } from "react"
+import { useRouter } from "next/navigation"
+import {
+  Building2,
+  ShoppingCart,
+  Hammer,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  FileText,
+  LogOut,
+  MapPin,
+  Phone,
+  Calendar,
+  Filter,
+  Search,
+  ChevronDown,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Search,
-  FileText,
-  MapPin,
-  Calendar,
-  ExternalLink,
-  Loader2,
-  RefreshCw,
-  X,
-  LogOut,
-  AlertCircle,
-  Database,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
 import { toast } from "sonner"
 
-interface AdminSession {
-  userId: string
-  username: string
-  role: string
-}
-
-interface DashboardClientProps {
-  session: AdminSession
-}
-
-interface Submission {
+interface BaseSubmission {
   id: string
-  created_at: string
+  full_name?: string
+  seller_name?: string
+  phone?: string
+  seller_phone?: string
   processing_status: string
+  created_at: string
   document_urls?: string[]
   image_urls?: string[]
+  location?: string
   stage?: string
-  [key: string]: any
+  srini_owned?: boolean
 }
 
-interface SubmissionCounts {
+interface PropertySellingSubmission extends BaseSubmission {
+  property_type: string
+  size: number
+  facing: string
+  price: string
+  seller_type: string
+  seller_name: string
+  seller_phone: string
+  location: string
+  map_link: string
+  urgency: string
+  description: string
+  custom_id: string
+}
+
+interface PropertyBuyingSubmission extends BaseSubmission {
+  property_type: string
+  size_preference: string
+  location: string
+  budget_range: string
+  additional_requirements: string
+  full_name: string
+  phone: string
+}
+
+interface PropertyDevelopmentSubmission extends BaseSubmission {
+  development_type: string
+  project_size: string
+  location: string
+  project_description: string
+  full_name: string
+  phone: string
+}
+
+interface Stats {
+  total: number
   selling: number
   buying: number
   development: number
+  processed: number
+  pending: number
 }
 
-// Loading Component
-const LoadingState = () => (
-  <div className="flex flex-col items-center justify-center py-16 space-y-4">
-    <div className="relative">
-      <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-      <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full bg-blue-600 opacity-20"></div>
-    </div>
-    <div className="text-center space-y-2">
-      <h3 className="text-lg font-semibold text-gray-900">Loading Dashboard</h3>
-      <p className="text-gray-600">Fetching your submissions...</p>
-    </div>
-  </div>
-)
+type Section = "selling" | "buying" | "development"
 
-// Empty State Component
-const EmptyState = ({
-  activeTab,
-  hasFilters,
-  onClearFilters,
-}: {
-  activeTab: string
-  hasFilters: boolean
-  onClearFilters: () => void
-}) => (
-  <div className="flex flex-col items-center justify-center py-16 space-y-6">
-    <div className="relative">
-      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
-        {hasFilters ? <Search className="h-12 w-12 text-gray-400" /> : <Database className="h-12 w-12 text-gray-400" />}
-      </div>
-      {!hasFilters && (
-        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-          <FileText className="h-4 w-4 text-blue-600" />
-        </div>
-      )}
-    </div>
+interface DashboardClientProps {
+  session: any
+}
 
-    <div className="text-center space-y-3 max-w-md">
-      <h3 className="text-xl font-semibold text-gray-900">
-        {hasFilters ? "No matching submissions" : `No ${activeTab} submissions yet`}
-      </h3>
-      <p className="text-gray-600 leading-relaxed">
-        {hasFilters
-          ? "We couldn't find any submissions matching your current filters. Try adjusting your search criteria or clearing the filters."
-          : `You haven't received any ${activeTab} submissions yet. When customers submit ${activeTab} forms, they'll appear here.`}
-      </p>
-    </div>
+// Separate component for search params logic
+function DashboardFilters({ onFilterChange }: { onFilterChange: (filter: string | null) => void }) {
+  const [mounted, setMounted] = useState(false)
 
-    {hasFilters && (
-      <Button
-        onClick={onClearFilters}
-        variant="outline"
-        className="bg-white hover:bg-gray-50 border-gray-300 text-gray-700"
-      >
-        <X className="h-4 w-4 mr-2" />
-        Clear all filters
-      </Button>
-    )}
-  </div>
-)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-// Error State Component
-const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
-  <div className="flex flex-col items-center justify-center py-16 space-y-6">
-    <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center">
-      <AlertCircle className="h-12 w-12 text-red-500" />
-    </div>
+  if (!mounted) {
+    return null
+  }
 
-    <div className="text-center space-y-3 max-w-md">
-      <h3 className="text-xl font-semibold text-gray-900">Something went wrong</h3>
-      <p className="text-gray-600 leading-relaxed">
-        We encountered an error while loading your submissions. Please try again or contact support if the problem
-        persists.
-      </p>
-    </div>
-
-    <Button onClick={onRetry} className="bg-blue-600 hover:bg-blue-700 text-white">
-      <RefreshCw className="h-4 w-4 mr-2" />
-      Try again
-    </Button>
-  </div>
-)
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="border-blue-200 hover:bg-blue-50 bg-transparent">
+          <Filter className="h-4 w-4 mr-2" />
+          Filter
+          <ChevronDown className="h-4 w-4 ml-2" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={() => onFilterChange(null)}>All Properties</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onFilterChange("srini")}>SRINI Properties</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onFilterChange("others")}>Other Properties</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 export default function DashboardClient({ session }: DashboardClientProps) {
-  const [activeTab, setActiveTab] = useState("selling")
-  const [submissions, setSubmissions] = useState<Submission[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [stageFilter, setStageFilter] = useState("all")
-  const [loggingOut, setLoggingOut] = useState(false)
-  const [countsLoading, setCountsLoading] = useState(true)
-
-  const [counts, setCounts] = useState<SubmissionCounts>({
+  const router = useRouter()
+  const [activeSection, setActiveSection] = useState<Section>("selling")
+  const [stats, setStats] = useState<Stats>({
+    total: 0,
     selling: 0,
     buying: 0,
     development: 0,
+    processed: 0,
+    pending: 0,
   })
-  const router = useRouter()
+  const [submissions, setSubmissions] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [stageFilter, setStageFilter] = useState<string | null>(null)
+  const [sriniFilter, setSriniFilter] = useState<string | null>(null)
 
-  // Fetch all counts when component mounts
   useEffect(() => {
-    fetchAllCounts()
-    fetchSubmissions()
-  }, [])
+    fetchData()
+  }, [activeSection, stageFilter, sriniFilter])
 
-  // Fetch submissions when active tab changes
-  useEffect(() => {
-    fetchSubmissions()
-  }, [activeTab])
-
-  const fetchAllCounts = async () => {
+  const fetchData = async () => {
+    setLoading(true)
     try {
-      setCountsLoading(true)
-      console.log("Fetching all submission counts...")
-
-      // Fetch counts for all three types simultaneously
-      const [sellingResponse, buyingResponse, developmentResponse] = await Promise.all([
-        fetch("/api/admin/selling-submissions"),
-        fetch("/api/admin/buying-submissions"),
-        fetch("/api/admin/development-submissions"),
+      const [statsRes, submissionsRes] = await Promise.all([
+        fetch("/api/admin/stats"),
+        fetch(`/api/admin/${activeSection}-submissions`),
       ])
 
-      const [sellingData, buyingData, developmentData] = await Promise.all([
-        sellingResponse.ok ? sellingResponse.json() : [],
-        buyingResponse.ok ? buyingResponse.json() : [],
-        developmentResponse.ok ? developmentResponse.json() : [],
-      ])
+      if (statsRes.ok && submissionsRes.ok) {
+        const statsData = await statsRes.json()
+        let submissionsData = await submissionsRes.json()
 
-      const newCounts = {
-        selling: Array.isArray(sellingData) ? sellingData.length : 0,
-        buying: Array.isArray(buyingData) ? buyingData.length : 0,
-        development: Array.isArray(developmentData) ? developmentData.length : 0,
+        const mappedStats = {
+          total: statsData.totalSubmissions || 0,
+          selling: statsData.sellingSubmissions || 0,
+          buying: statsData.buyingSubmissions || 0,
+          development: statsData.developmentSubmissions || 0,
+          processed: statsData.completedSubmissions || 0,
+          pending: statsData.pendingSubmissions || 0,
+        }
+
+        // Apply SRINI filter
+        if (sriniFilter === "srini") {
+          submissionsData = submissionsData.filter((sub: any) => sub.srini_owned === true)
+        } else if (sriniFilter === "others") {
+          submissionsData = submissionsData.filter((sub: any) => !sub.srini_owned)
+        }
+
+        // Apply stage filter
+        if (stageFilter) {
+          submissionsData = submissionsData.filter((sub: any) => sub.stage === stageFilter)
+        }
+
+        setStats(mappedStats)
+        setSubmissions(submissionsData)
       }
-
-      console.log("Fetched counts:", newCounts)
-      setCounts(newCounts)
     } catch (error) {
-      console.error("Error fetching counts:", error)
-      toast.error("Failed to load submission counts")
-    } finally {
-      setCountsLoading(false)
-    }
-  }
-
-  const fetchSubmissions = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      let endpoint = ""
-      switch (activeTab) {
-        case "selling":
-          endpoint = "/api/admin/selling-submissions"
-          break
-        case "buying":
-          endpoint = "/api/admin/buying-submissions"
-          break
-        case "development":
-          endpoint = "/api/admin/development-submissions"
-          break
-        default:
-          endpoint = "/api/admin/selling-submissions"
-      }
-
-      console.log(`Fetching submissions from: ${endpoint}`)
-      const response = await fetch(endpoint)
-      if (!response.ok) throw new Error("Failed to fetch submissions")
-
-      const data = await response.json()
-      console.log(`Fetched ${data.length} ${activeTab} submissions`)
-      setSubmissions(data)
-    } catch (error) {
-      console.error("Error fetching submissions:", error)
-      setError(error instanceof Error ? error.message : "Failed to load submissions")
-      toast.error("Failed to load submissions")
+      console.error("Error fetching data:", error)
+      toast.error("Failed to load dashboard data")
     } finally {
       setLoading(false)
     }
   }
 
-  const filteredSubmissions = submissions.filter((submission) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      (submission.seller_name || submission.full_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (submission.seller_phone || submission.phone || "").includes(searchTerm) ||
-      (submission.location || "").toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesStage =
-      stageFilter === "all" || (submission.stage || "called").toLowerCase() === stageFilter.toLowerCase()
-
-    return matchesSearch && matchesStage
-  })
-
-  const handleSubmissionClick = (submission: Submission) => {
-    router.push(`/admin/submission/${submission.id}?type=${activeTab}`)
-  }
-
   const handleLogout = async () => {
     try {
-      setLoggingOut(true)
-
-      const response = await fetch("/api/admin/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (response.ok) {
+      const res = await fetch("/api/admin/logout", { method: "POST" })
+      if (res.ok) {
         toast.success("Logged out successfully")
         router.push("/admin/login")
-        router.refresh()
-      } else {
-        throw new Error("Logout failed")
       }
     } catch (error) {
-      console.error("Logout error:", error)
       toast.error("Failed to logout")
-    } finally {
-      setLoggingOut(false)
     }
   }
 
-  const handleRefresh = async () => {
-    await Promise.all([fetchAllCounts(), fetchSubmissions()])
-    toast.success("Dashboard refreshed")
-  }
-
-  const getSubmissionTitle = (submission: Submission) => {
-    switch (activeTab) {
-      case "selling":
-        return `${submission.property_type || "Property"} - ${submission.size || "N/A"} sq ft - ₹${submission.price || "N/A"}`
-      case "buying":
-        return `Looking for ${submission.property_type || "Property"} - Budget: ${submission.budget_range || "N/A"}`
-      case "development":
-        return `${submission.development_type || "Development"} - ${submission.project_size || "Size not specified"}`
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />
+      case "processing":
+        return <Clock className="h-4 w-4 text-blue-500" />
+      case "failed":
+        return <AlertCircle className="h-4 w-4 text-red-500" />
       default:
-        return "Property Submission"
+        return <Clock className="h-4 w-4 text-gray-500" />
     }
   }
 
-  const getContactInfo = (submission: Submission) => {
-    return {
-      name: submission.seller_name || submission.full_name || "Unknown",
-      phone: submission.seller_phone || submission.phone || "",
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
-
-  const getFileCount = (submission: Submission) => {
-    const docCount = submission.document_urls?.length || 0
-    const imgCount = submission.image_urls?.length || 0
-    return docCount + imgCount
-  }
-
-  const clearFilters = () => {
-    setSearchTerm("")
-    setStageFilter("all")
-  }
-
-  const getStageColor = (stage: string) => {
-    switch (stage?.toLowerCase()) {
+  const getStageColor = (stage?: string) => {
+    switch (stage) {
       case "called":
         return "bg-blue-100 text-blue-800 border-blue-200"
-      case "first meeting":
+      case "first_meeting":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      case "second meeting":
-        return "bg-orange-100 text-orange-800 border-orange-200"
-      case "deal started":
+      case "second_meeting":
         return "bg-purple-100 text-purple-800 border-purple-200"
-      case "deal closed":
+      case "deal_started":
+        return "bg-orange-100 text-orange-800 border-orange-200"
+      case "deal_closed":
         return "bg-green-100 text-green-800 border-green-200"
       default:
         return "bg-gray-100 text-gray-800 border-gray-200"
     }
   }
 
-  const hasActiveFilters = searchTerm !== "" || stageFilter !== "all"
+  const formatStageLabel = (stage?: string) => {
+    switch (stage) {
+      case "called":
+        return "Called"
+      case "first_meeting":
+        return "First Meeting"
+      case "second_meeting":
+        return "Second Meeting"
+      case "deal_started":
+        return "Deal Started"
+      case "deal_closed":
+        return "Deal Closed"
+      default:
+        return stage || "N/A"
+    }
+  }
 
-  // Show error state
-  if (error && !loading) {
+  const filteredSubmissions = submissions.filter((sub) => {
+    const searchLower = searchQuery.toLowerCase()
+    const name = sub.seller_name || sub.full_name || ""
+    const phone = sub.seller_phone || sub.phone || ""
+    const location = sub.location || ""
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-              <p className="text-gray-600 text-lg">Welcome back, {session.role}</p>
+      name.toLowerCase().includes(searchLower) ||
+      phone.includes(searchLower) ||
+      location.toLowerCase().includes(searchLower)
+    )
+  })
+
+  const renderSubmissionCard = (submission: any) => {
+    const name = submission.seller_name || submission.full_name || "N/A"
+    const phone = submission.seller_phone || submission.phone || "N/A"
+    const isSrini = submission.srini_owned === true
+
+    return (
+      <Card
+        key={submission.id}
+        className="group hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer"
+        onClick={() => router.push(`/admin/submission/${submission.id}`)}
+      >
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
+                  {name}
+                </h3>
+                {isSrini && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs px-2 py-0.5">
+                          SRINI
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>SRINI Owned Property</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <Phone className="h-3 w-3" />
+                  <span>{phone}</span>
+                </div>
+                {submission.location && (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span>{submission.location}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <Button
-              onClick={handleLogout}
-              disabled={loggingOut}
-              variant="outline"
-              size="sm"
-              className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700 hover:text-red-800 shadow-sm"
-            >
-              {loggingOut ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <LogOut className="h-4 w-4 mr-2" />}
-              {loggingOut ? "Logging out..." : "Logout"}
-            </Button>
+            <div className="flex flex-col items-end gap-2">
+              {getStatusIcon(submission.processing_status)}
+              {submission.stage && (
+                <Badge variant="outline" className={`text-xs ${getStageColor(submission.stage)}`}>
+                  {formatStageLabel(submission.stage)}
+                </Badge>
+              )}
+            </div>
           </div>
-          <ErrorState onRetry={handleRefresh} />
-        </div>
-      </div>
+
+          {activeSection === "selling" && (
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-gray-500">Type:</span>
+                <span className="ml-2 font-medium">{submission.property_type}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Size:</span>
+                <span className="ml-2 font-medium">{submission.size} sq.yd</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Price:</span>
+                <span className="ml-2 font-medium text-green-600">₹{submission.price}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Facing:</span>
+                <span className="ml-2 font-medium">{submission.facing}</span>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "buying" && (
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-gray-500">Type:</span>
+                <span className="ml-2 font-medium">{submission.property_type}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Budget:</span>
+                <span className="ml-2 font-medium text-green-600">{submission.budget_range}</span>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "development" && (
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-gray-500">Type:</span>
+                <span className="ml-2 font-medium">{submission.development_type}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Size:</span>
+                <span className="ml-2 font-medium">{submission.project_size}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              <span>{new Date(submission.created_at).toLocaleDateString()}</span>
+            </div>
+            <span className="text-blue-600 font-medium group-hover:underline">View Details →</span>
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-            <p className="text-gray-600 text-lg">Welcome back, {session.role}</p>
-          </div>
-          <div className="flex justify-between items-center mb-8 gap-2">
-            <Button
-              onClick={handleRefresh}
-              variant="outline"
-              size="sm"
-              disabled={loading || countsLoading}
-              className="bg-blue-500 text-white hover:bg-blue-600 border-gray-200 shadow-sm gap-4"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading || countsLoading ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
-            <Button
-              onClick={handleLogout}
-              disabled={loggingOut}
-              variant="outline"
-              size="sm"
-              className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700 hover:text-red-800 shadow-sm"
-            >
-              {loggingOut ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <LogOut className="h-4 w-4 mr-2" />}
-              {loggingOut ? "Logging out..." : "Logout"}
-            </Button>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 bg-white shadow-sm border border-gray-200 h-12">
-            <TabsTrigger
-              value="selling"
-              className="flex items-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-base cursor-pointer h-10"
-            >
-              Selling ({countsLoading ? <Loader2 className="h-3 w-3 ml-1 animate-spin" /> : counts.selling})
-            </TabsTrigger>
-            <TabsTrigger
-              value="buying"
-              className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-base cursor-pointer h-10"
-            >
-              Buying ({countsLoading ? <Loader2 className="h-3 w-3 ml-1 animate-spin" /> : counts.buying})
-            </TabsTrigger>
-            <TabsTrigger
-              value="development"
-              className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-base cursor-pointer h-10"
-            >
-              Development ({countsLoading ? <Loader2 className="h-3 w-3 ml-1 animate-spin" /> : counts.development})
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-3 flex-1">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search by name, phone, or location..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white border-gray-200 shadow-sm"
-                />
-              </div>
-              <Select value={stageFilter} onValueChange={setStageFilter}>
-                <SelectTrigger className="w-full sm:w-48 bg-white border-gray-200 shadow-sm">
-                  <SelectValue placeholder="All Stages" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="all">All Stages</SelectItem>
-                  <SelectItem value="called">Called</SelectItem>
-                  <SelectItem value="first meeting">First Meeting</SelectItem>
-                  <SelectItem value="second meeting">Second Meeting</SelectItem>
-                  <SelectItem value="deal started">Deal Started</SelectItem>
-                  <SelectItem value="deal closed">Deal Closed</SelectItem>
-                </SelectContent>
-              </Select>
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
+              <p className="text-gray-600 mt-1">Welcome back, {session?.user?.username}</p>
             </div>
-            {hasActiveFilters && (
+            <div className="flex items-center gap-3">
+              <Link href="/property-selling?srini=true">
+                <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Upload Property
+                </Button>
+              </Link>
               <Button
                 variant="outline"
-                size="sm"
-                onClick={clearFilters}
-                className="bg-white hover:bg-gray-50 border-gray-200 shadow-sm"
+                onClick={handleLogout}
+                className="border-red-200 text-red-600 hover:bg-red-50 bg-transparent"
               >
-                <X className="h-4 w-4 mr-2" />
-                Clear
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
               </Button>
-            )}
+            </div>
           </div>
+        </div>
+      </div>
 
-          {/* Content */}
-          <TabsContent value={activeTab} className="space-y-4">
-            {loading ? (
-              <LoadingState />
-            ) : filteredSubmissions.length === 0 ? (
-              <EmptyState activeTab={activeTab} hasFilters={hasActiveFilters} onClearFilters={clearFilters} />
-            ) : (
-              <div className="space-y-3">
-                {filteredSubmissions.map((submission) => {
-                  const contact = getContactInfo(submission)
-                  const fileCount = getFileCount(submission)
-
-                  return (
-                    <Card
-                      key={submission.id}
-                      className="cursor-pointer hover:shadow-lg hover:border-blue-300 transition-all duration-200 bg-white border-gray-200 shadow-sm"
-                      onClick={() => handleSubmissionClick(submission)}
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-semibold text-gray-900 text-lg">{contact.name}</h3>
-                              <span className="text-gray-400">•</span>
-                              <span className="text-gray-600 font-medium">{contact.phone}</span>
-                              <span className="text-gray-400">•</span>
-                              <Badge
-                                className={`text-xs font-medium border ${getStageColor(submission.stage || "called")}`}
-                              >
-                                {submission.stage || "Called"}
-                              </Badge>
-                            </div>
-                            <p className="text-gray-700 mb-3 font-medium">{getSubmissionTitle(submission)}</p>
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
-                                {formatDate(submission.created_at)}
-                              </div>
-                              {fileCount > 0 && (
-                                <div className="flex items-center gap-1">
-                                  <FileText className="h-4 w-4" />
-                                  {fileCount} files
-                                </div>
-                              )}
-                              {submission.location && (
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {submission.location}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleSubmissionClick(submission)
-                              }}
-                            >
-                              <ExternalLink className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100 text-sm">Total</p>
+                  <p className="text-3xl font-bold mt-2">{stats.total}</p>
+                </div>
+                <FileText className="h-8 w-8 text-blue-200" />
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-100 text-sm">Selling</p>
+                  <p className="text-3xl font-bold mt-2">{stats.selling}</p>
+                </div>
+                <Building2 className="h-8 w-8 text-green-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-100 text-sm">Buying</p>
+                  <p className="text-3xl font-bold mt-2">{stats.buying}</p>
+                </div>
+                <ShoppingCart className="h-8 w-8 text-purple-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-orange-100 text-sm">Development</p>
+                  <p className="text-3xl font-bold mt-2">{stats.development}</p>
+                </div>
+                <Hammer className="h-8 w-8 text-orange-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-emerald-100 text-sm">Processed</p>
+                  <p className="text-3xl font-bold mt-2">{stats.processed}</p>
+                </div>
+                <CheckCircle2 className="h-8 w-8 text-emerald-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-amber-500 to-amber-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-amber-100 text-sm">Pending</p>
+                  <p className="text-3xl font-bold mt-2">{stats.pending}</p>
+                </div>
+                <Clock className="h-8 w-8 text-amber-200" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tabs and Filters */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <CardTitle>Submissions</CardTitle>
+                <CardDescription>Manage all property submissions</CardDescription>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, phone, location..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-64"
+                  />
+                </div>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="border-blue-200 hover:bg-blue-50 bg-transparent">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Stage: {stageFilter ? formatStageLabel(stageFilter) : "All"}
+                      <ChevronDown className="h-4 w-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setStageFilter(null)}>All Stages</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStageFilter("called")}>Called</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStageFilter("first_meeting")}>First Meeting</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStageFilter("second_meeting")}>Second Meeting</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStageFilter("deal_started")}>Deal Started</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStageFilter("deal_closed")}>Deal Closed</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Suspense fallback={<div className="h-10 w-32 bg-gray-100 animate-pulse rounded-lg" />}>
+                  <DashboardFilters onFilterChange={setSriniFilter} />
+                </Suspense>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeSection} onValueChange={(v) => setActiveSection(v as Section)}>
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="selling" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Selling ({stats.selling})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="buying"
+                  className="data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Buying ({stats.buying})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="development"
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                >
+                  <Hammer className="h-4 w-4 mr-2" />
+                  Development ({stats.development})
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="selling">
+                {loading ? (
+                  <div className="space-y-4">
+                    {[...Array(6)].map((_, i) => (
+                      <Card key={i} className="animate-pulse">
+                        <CardContent className="p-6">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                          <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : filteredSubmissions.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No submissions found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">{filteredSubmissions.map(renderSubmissionCard)}</div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="buying">
+                {loading ? (
+                  <div className="space-y-4">
+                    {[...Array(6)].map((_, i) => (
+                      <Card key={i} className="animate-pulse">
+                        <CardContent className="p-6">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                          <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : filteredSubmissions.length === 0 ? (
+                  <div className="text-center py-12">
+                    <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No buying requests found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">{filteredSubmissions.map(renderSubmissionCard)}</div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="development">
+                {loading ? (
+                  <div className="space-y-4">
+                    {[...Array(6)].map((_, i) => (
+                      <Card key={i} className="animate-pulse">
+                        <CardContent className="p-6">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                          <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : filteredSubmissions.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Hammer className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No development requests found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">{filteredSubmissions.map(renderSubmissionCard)}</div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

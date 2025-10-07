@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, Lock, User, Loader2, ChevronLeft, ArrowBigLeftDash } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  User,
+  Loader2,
+  ChevronLeft,
+  ArrowBigLeftDash,
+} from "lucide-react";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -103,7 +111,10 @@ export default function AdminLoginPage() {
   return (
     <>
       <div className="relative">
-        <Button onClick={RedirectHome} className="absolute top-12 left-12 text-white hover:bg-blue-500 hover:text-white bg-blue-400 p-4 rounded">
+        <Button
+          onClick={RedirectHome}
+          className="absolute top-12 left-12 text-white hover:bg-blue-500 hover:text-white bg-blue-400 p-4 rounded"
+        >
           <ArrowBigLeftDash className="h-4 w-4" />
           Back to Home
         </Button>

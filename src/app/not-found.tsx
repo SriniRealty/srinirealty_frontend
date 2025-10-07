@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
-      <div className="max-w-4xl mx-auto text-center">
+      <div className="max-w-4xl mx-auto text-center mt-12">
         {/* 404 Number */}
         <div className="relative mb-16">
           <h1 className="text-[12rem] md:text-[16rem] font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none select-none">
