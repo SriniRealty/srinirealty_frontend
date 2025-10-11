@@ -30,7 +30,7 @@ import { hyderabadAreas } from "@/data/hyderabad-areas"
 import { submitPropertySelling } from "@/app/actions/submit-property-selling"
 import { generatePropertyId } from "@/utils/generate-property-id"
 
-function PropertySellingPage() {
+function PropertySelling() {
   const searchParams = useSearchParams()
   const [isSriniUpload, setIsSriniUpload] = useState(false)
 
@@ -237,44 +237,40 @@ function PropertySellingPage() {
     }
   }
 
-  const validateFiles = (files: File[], maxSizePerFile = 10, maxTotalSize = 50) => {
-    const maxSizeBytes = maxSizePerFile * 1024 * 1024
-    const maxTotalBytes = maxTotalSize * 1024 * 1024
-
-    // Check individual file sizes
-    for (const file of files) {
-      if (file.size > maxSizeBytes) {
-        return {
-          valid: false,
-          message: `File "${file.name}" exceeds ${maxSizePerFile}MB limit (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
-        }
-      }
-    }
-
-    // Check total size
-    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
-    if (totalSize > maxTotalBytes) {
-      return {
-        valid: false,
-        message: `Total file size exceeds ${maxTotalSize}MB limit (${(totalSize / 1024 / 1024).toFixed(2)}MB)`,
-      }
-    }
-
-    return { valid: true }
-  }
-
   const handleFileUpload = (files: FileList | null, type: "property" | "layout") => {
     if (!files) return
 
     const fileArray = Array.from(files)
+    const maxSizePerFile = 10 * 1024 * 1024 // 10MB in bytes
+    const maxTotalSize = 50 * 1024 * 1024 // 50MB in bytes
 
-    // Validate files with new 10MB limit
-    const validation = validateFiles(fileArray, 10, 50)
-    if (!validation.valid) {
-      toast.error(validation.message)
+    // Check individual file sizes
+    for (const file of fileArray) {
+      if (file.size > maxSizePerFile) {
+        toast.error(`File "${file.name}" exceeds 10MB limit (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
+        return
+      }
+    }
+
+    // Calculate total size including existing files
+    const existingPropertySize = propertyDocuments.reduce((sum, file) => sum + file.size, 0)
+    const existingLayoutSize = layoutDocuments.reduce((sum, file) => sum + file.size, 0)
+    const newFilesSize = fileArray.reduce((sum, file) => sum + file.size, 0)
+    const totalSize = existingPropertySize + existingLayoutSize + newFilesSize
+
+    // Check if total size exceeds 50MB
+    if (totalSize > maxTotalSize) {
+      const currentTotalMB = ((existingPropertySize + existingLayoutSize) / 1024 / 1024).toFixed(2)
+      const newFilesMB = (newFilesSize / 1024 / 1024).toFixed(2)
+      const totalMB = (totalSize / 1024 / 1024).toFixed(2)
+
+      toast.error(
+        `Total file size would exceed 50MB limit. Current: ${currentTotalMB}MB, New files: ${newFilesMB}MB, Total: ${totalMB}MB`,
+      )
       return
     }
 
+    // Add files if validation passes
     if (type === "property") {
       setPropertyDocuments((prev) => [...prev, ...fileArray])
     } else if (type === "layout") {
@@ -762,7 +758,6 @@ function PropertySellingPage() {
   )
 }
 
-
 export default function PropertySellingComponent() {
   return (
     <Suspense
@@ -777,7 +772,7 @@ export default function PropertySellingComponent() {
         </div>
       }
     >
-      <PropertySellingPage />
+      <PropertySelling />
     </Suspense>
   )
 }
