@@ -267,7 +267,7 @@ export default function DashboardClient({ session }: DashboardClientProps) {
       <Card
         key={submission.id}
         className="group hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 cursor-pointer"
-        onClick={() => router.push(`/admin/submission/${submission.id}`)}
+        onClick={() => router.push(`/admin/submission/${submission.id}?type=${activeSection}`)}
       >
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
@@ -386,7 +386,7 @@ export default function DashboardClient({ session }: DashboardClientProps) {
               <p className="text-gray-600 mt-1">Welcome back, {session?.user?.username}</p>
             </div>
             <div className="flex items-center gap-3">
-              <Link href="/property-selling?srini=true">
+              <Link href="/upload-property">
                 <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
                   <Building2 className="h-4 w-4 mr-2" />
                   Upload Property

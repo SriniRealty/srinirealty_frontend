@@ -7,8 +7,8 @@ export default function NotFound() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
       <div className="max-w-4xl mx-auto text-center mt-12">
         {/* 404 Number */}
-        <div className="relative mb-16">
-          <h1 className="text-[12rem] md:text-[16rem] font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none select-none">
+        <div className="relative mb-16 mt-12 md:mt-6">
+          <h1 className="text-[8rem] md:text-[16rem] font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none select-none">
             404
           </h1>
           <div className="absolute inset-0 text-[12rem] md:text-[16rem] font-black text-gray-200 -z-10 transform translate-x-2 translate-y-2">

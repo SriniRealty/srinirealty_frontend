@@ -4,16 +4,13 @@ import { requireAdminAuth } from "@/lib/auth"
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    // Verify admin authentication
+    // Verify admin auth
     await requireAdminAuth()
 
-    // Await params as required by Next.js 15
-    const params = await context.params
-    const { id } = params
+    // Next.js 15 requires awaiting params
+    const { id } = await context.params
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type") || "selling"
-
-    console.log(`Fetching submission ${id} of type ${type}`)
 
     if (!id) {
       return NextResponse.json({ error: "Submission ID is required" }, { status: 400 })
@@ -21,7 +18,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     const supabase = await createClient()
 
-    // Determine the table name based on type
+    // Decide table by type
     let tableName = ""
     switch (type) {
       case "selling":
@@ -34,50 +31,66 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         tableName = "property_development_submissions"
         break
       default:
-        console.error(`Invalid submission type: ${type}`)
         return NextResponse.json({ error: "Invalid submission type" }, { status: 400 })
     }
 
-    console.log(`Querying table: ${tableName} for ID: ${id}`)
-
-    // Fetch the submission data
+    // Attempt direct id lookup
     const { data: submission, error } = await supabase.from(tableName).select("*").eq("id", id).single()
 
     if (error) {
-      console.error("Database fetch error:", error)
-      if (error.code === "PGRST116") {
+      // PGRST116 = no rows found for .single()
+      if ((error as any).code === "PGRST116") {
+        // Try fallback by custom_id
+        const { data: customIdResult, error: customIdError } = await supabase
+          .from(tableName)
+          .select("*")
+          .eq("custom_id", id)
+          .single()
+
+        if (!customIdError && customIdResult) {
+          return NextResponse.json({
+            success: true,
+            data: {
+              ...customIdResult,
+              document_urls: customIdResult.document_urls || [],
+              image_urls: customIdResult.image_urls || [],
+              type,
+            },
+          })
+        }
+
         return NextResponse.json({ error: "Submission not found" }, { status: 404 })
       }
-      return NextResponse.json({ error: "Failed to fetch submission" }, { status: 500 })
+
+      if ((error as any).code === "42P01") {
+        return NextResponse.json({ error: `Table ${tableName} does not exist` }, { status: 500 })
+      }
+
+      if ((error as any).code === "42501") {
+        return NextResponse.json({ error: "Permission denied to access table" }, { status: 403 })
+      }
+
+      return NextResponse.json({ error: "Failed to fetch submission", errorCode: (error as any).code }, { status: 500 })
     }
 
     if (!submission) {
-      console.log("No submission found for ID:", id)
       return NextResponse.json({ error: "Submission not found" }, { status: 404 })
     }
 
-    console.log("Successfully fetched submission:", submission.id)
-
-    // Process file URLs to ensure they're accessible
     const processedSubmission = {
       ...submission,
       document_urls: submission.document_urls || [],
       image_urls: submission.image_urls || [],
-      type: type,
+      type,
     }
 
-    return NextResponse.json({
-      success: true,
-      data: processedSubmission,
-    })
-  } catch (error) {
-    console.error("Submission fetch error:", error)
-
-    // Check if this is an authentication error
-    if (error instanceof Error && error.message.includes("unauthorized")) {
+    return NextResponse.json({ success: true, data: processedSubmission })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error"
+    // Unauthorized path
+    if (message.toLowerCase().includes("unauthorized")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error", message }, { status: 500 })
   }
 }

@@ -29,6 +29,7 @@ import { numberToWords } from "@/utils/number-to-words"
 import { hyderabadAreas } from "@/data/hyderabad-areas"
 import { submitPropertySelling } from "@/app/actions/submit-property-selling"
 import { generatePropertyId } from "@/utils/generate-property-id"
+import { compressFiles } from "@/utils/compress-image"
 
 function PropertySelling() {
   const searchParams = useSearchParams()
@@ -237,17 +238,24 @@ function PropertySelling() {
     }
   }
 
-  const handleFileUpload = (files: FileList | null, type: "property" | "layout") => {
-    if (!files) return
+  const handleFileUpload = async (files: FileList | null, type: "property" | "layout") => {
+  if (!files) return
 
-    const fileArray = Array.from(files)
-    const maxSizePerFile = 10 * 1024 * 1024 // 10MB in bytes
-    const maxTotalSize = 50 * 1024 * 1024 // 50MB in bytes
+  const fileArray = Array.from(files)
+  const maxSizePerFile = 10 * 1024 * 1024 // 5MB for Supabase free tier
+  const maxTotalSize = 50 * 1024 * 1024 // 25MB total
 
-    // Check individual file sizes
-    for (const file of fileArray) {
+  try {
+    // Compress images automatically
+    toast.info("Processing files...", { duration: 2000 })
+    const processedFiles = await compressFiles(fileArray, 3)
+
+    // Check individual file sizes after compression
+    for (const file of processedFiles) {
       if (file.size > maxSizePerFile) {
-        toast.error(`File "${file.name}" exceeds 10MB limit (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
+        toast.error(
+          `File "${file.name}" exceeds 5MB limit even after compression (${(file.size / 1024 / 1024).toFixed(2)}MB). Please use a smaller file.`
+        )
         return
       }
     }
@@ -255,30 +263,41 @@ function PropertySelling() {
     // Calculate total size including existing files
     const existingPropertySize = propertyDocuments.reduce((sum, file) => sum + file.size, 0)
     const existingLayoutSize = layoutDocuments.reduce((sum, file) => sum + file.size, 0)
-    const newFilesSize = fileArray.reduce((sum, file) => sum + file.size, 0)
+    const newFilesSize = processedFiles.reduce((sum, file) => sum + file.size, 0)
     const totalSize = existingPropertySize + existingLayoutSize + newFilesSize
 
-    // Check if total size exceeds 50MB
+    // Check if total size exceeds limit
     if (totalSize > maxTotalSize) {
       const currentTotalMB = ((existingPropertySize + existingLayoutSize) / 1024 / 1024).toFixed(2)
       const newFilesMB = (newFilesSize / 1024 / 1024).toFixed(2)
       const totalMB = (totalSize / 1024 / 1024).toFixed(2)
 
       toast.error(
-        `Total file size would exceed 50MB limit. Current: ${currentTotalMB}MB, New files: ${newFilesMB}MB, Total: ${totalMB}MB`,
+        `Total file size would exceed 25MB limit. Current: ${currentTotalMB}MB, New files: ${newFilesMB}MB, Total: ${totalMB}MB`
       )
       return
     }
 
     // Add files if validation passes
     if (type === "property") {
-      setPropertyDocuments((prev) => [...prev, ...fileArray])
+      setPropertyDocuments((prev) => [...prev, ...processedFiles])
     } else if (type === "layout") {
-      setLayoutDocuments((prev) => [...prev, ...fileArray])
+      setLayoutDocuments((prev) => [...prev, ...processedFiles])
     }
 
-    toast.success(`${fileArray.length} file(s) added successfully!`)
+    const savedSpace = fileArray.reduce((sum, f) => sum + f.size, 0) - newFilesSize
+    if (savedSpace > 0) {
+      toast.success(
+        `${processedFiles.length} file(s) added! Saved ${(savedSpace / 1024 / 1024).toFixed(2)}MB through compression.`
+      )
+    } else {
+      toast.success(`${processedFiles.length} file(s) added successfully!`)
+    }
+  } catch (error) {
+    console.error("File processing error:", error)
+    toast.error("Failed to process files. Please try again.")
   }
+}
 
   const FilePreview = ({ files, type }: { files: File[]; type: "property" | "layout" }) => {
     if (files.length === 0) return null

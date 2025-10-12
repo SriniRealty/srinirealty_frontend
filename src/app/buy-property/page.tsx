@@ -48,7 +48,7 @@ const getPropertyImage = (propertyType: string, index: number) => {
       "/images/Ih_3.avif",
     ],
     Commercial: ["/images/cs_1.jpg", "/images/cs_2.jpg", "/images/cs_3.jpg"],
-    Farm: ["/images/fl_1.avif", "/images/fl_2.avif"],
+    Farm: ["/images/fI_1.avif", "/images/fI_2.avif"],
     "Apartment Flat": [
       "/images/App_1.avif",
       "/images/App_2.avif",
@@ -238,6 +238,16 @@ function BuyPropertyPageInner() {
     });
     return counts;
   };
+
+    const propertyObject = {
+      "Villas": "Sqft",
+      "Apartment Flat": "Sqft",
+      "Office Space": "Sqft",
+      "Open Plot": "Sq Yards",
+      "Independent House": "Sq Yards",
+      "Farm Land": "Acres"
+    }
+    
 
   const getLocationCounts = () => {
     const counts: { [key: string]: number } = {};
@@ -670,7 +680,7 @@ function BuyPropertyPageInner() {
                               Built-up Area
                             </span>
                             <span className="text-sm font-semibold text-gray-900">
-                              {property.size}
+                              {property.size}{' '}{`${property.property_type in propertyObject ? propertyObject[property.property_type as keyof typeof propertyObject] : 'Sqft'}`}
                             </span>
                           </div>
 
