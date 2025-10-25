@@ -1,93 +1,129 @@
-"use server"
+"use server";
 
-import { createClient } from "@/lib/supabase/server"
-import { revalidatePath } from "next/cache"
-import { uploadMultipleFiles } from "@/lib/file-upload"
-import { generatePropertyId } from "@/utils/generate-property-id"
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { uploadMultipleFiles } from "@/lib/file-upload";
+import { generatePropertyId } from "@/utils/generate-property-id";
+// import { sendPropertySellingSMS } from "@/lib/msg91"
 
 export interface SubmissionResult {
-  success: boolean
-  message: string
-  errors?: Record<string, string[]>
-  statusCode?: number
-  customId?: string
+  success: boolean;
+  message: string;
+  errors?: Record<string, string[]>;
+  statusCode?: number;
+  customId?: string;
 }
 
-export async function submitPropertySelling(formData: FormData): Promise<SubmissionResult> {
+export async function submitPropertySelling(
+  formData: FormData
+): Promise<SubmissionResult> {
   try {
-    const supabase = await createClient()
+    const supabase = await createClient();
 
     // Extract form data
-    const propertyType = formData.get("propertyType") as string
-    const size = formData.get("size") as string
-    const facing = formData.get("facing") as string
-    const plotNumber = formData.get("plotNumber") as string
-    const price = formData.get("price") as string
-    const sellerType = formData.get("sellerType") as string
-    const sellerName = formData.get("sellerName") as string
-    const sellerPhone = formData.get("sellerPhone") as string
-    const location = formData.get("location") as string
-    const mapLink = formData.get("mapLink") as string
-    const urgency = formData.get("urgency") as string
-    const description = formData.get("description") as string
-    const isSriniOwned = formData.get("isSriniOwned") === "true"
+    const propertyType = formData.get("propertyType") as string;
+    const size = formData.get("size") as string;
+    const facing = formData.get("facing") as string;
+    const plotNumber = formData.get("plotNumber") as string;
+    const price = formData.get("price") as string;
+    const sellerType = formData.get("sellerType") as string;
+    const sellerName = formData.get("sellerName") as string;
+    const sellerPhone = formData.get("sellerPhone") as string;
+    const location = formData.get("location") as string;
+    const mapLink = formData.get("mapLink") as string;
+    const urgency = formData.get("urgency") as string;
+    const description = formData.get("description") as string;
+    const isSriniOwned = formData.get("isSriniOwned") === "true";
 
     // Handle file uploads
-    const propertyDocuments: File[] = []
-    const layoutDocuments: File[] = []
+    const propertyDocuments: File[] = [];
+    const layoutDocuments: File[] = [];
+    const assetDocuments: File[] = [];
+
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(
+          `[v0]   ${key}: ${value.name} (${(value.size / 1024 / 1024).toFixed(2)}MB, ${value.type})`
+        );
+      }
+    }
 
     // Extract files from FormData
+    console.log("[v0] Extracting files from FormData...");
     for (const [key, value] of formData.entries()) {
       if (key.startsWith("propertyDocument_") && value instanceof File) {
-        propertyDocuments.push(value)
+        console.log(`[v0] ✓ Found propertyDocument: ${value.name}`);
+        propertyDocuments.push(value);
       } else if (key.startsWith("layoutDocument_") && value instanceof File) {
-        layoutDocuments.push(value)
+        console.log(`[v0] ✓ Found layoutDocument: ${value.name}`);
+        layoutDocuments.push(value);
+      } else if (key.startsWith("assetDocument_") && value instanceof File) {
+        console.log(
+          `[v0] ✓ Found assetDocument: ${value.name} (${(value.size / 1024 / 1024).toFixed(2)}MB)`
+        );
+        assetDocuments.push(value);
       }
     }
 
     // Upload files to Supabase Storage
-    let documentUrls: string[] = []
-    let imageUrls: string[] = []
+    let documentUrls: string[] = [];
+    let imageUrls: string[] = [];
 
     try {
-      if (propertyDocuments.length > 0) {
-        console.log(`Uploading ${propertyDocuments.length} property documents`)
-        const documentResults = await uploadMultipleFiles(propertyDocuments, "property-documents")
+      const allDocuments = [...propertyDocuments, ...assetDocuments];
+      if (allDocuments.length > 0) {
+        const documentResults = await uploadMultipleFiles(
+          allDocuments,
+          "property-documents"
+        );
+
         documentUrls = documentResults
           .filter((result) => result.success)
           .map((result) => result.url)
-          .filter((url) => url !== undefined) as string[]
-        console.log(`Successfully uploaded ${documentUrls.length} property documents`)
+          .filter((url) => url !== undefined) as string[];
+
+        console.log(
+          `[v0] ✓ Successfully uploaded ${documentUrls.length} documents to Supabase`
+        );
+      } else {
+        console.log(`[v0] ⚠ No documents to upload (allDocuments.length = 0)`);
       }
+
       if (layoutDocuments.length > 0) {
-        console.log(`Uploading ${layoutDocuments.length} layout documents`)
-        const imageResults = await uploadMultipleFiles(layoutDocuments, "property-images")
+        const imageResults = await uploadMultipleFiles(
+          layoutDocuments,
+          "property-images"
+        );
+
         imageUrls = imageResults
           .filter((result) => result.success)
           .map((result) => result.url)
-          .filter((url) => url !== undefined) as string[]
-        console.log(`Successfully uploaded ${imageUrls.length} layout documents`)
+          .filter((url) => url !== undefined) as string[];
+      } else {
+        console.log(
+          `[v0] ⚠ No layout documents to upload (layoutDocuments.length = 0)`
+        );
       }
     } catch (uploadError) {
-      console.error("File upload error:", uploadError)
+      console.error("[v0] ❌ File upload error:", uploadError);
       return {
         success: false,
         message: "File upload failed. Please try again with smaller files.",
         statusCode: 413,
-      }
+      };
     }
 
     // Validate required fields
-    const errors: Record<string, string[]> = {}
+    const errors: Record<string, string[]> = {};
 
-    if (!propertyType) errors.propertyType = ["Property type is required"]
-    if (!size) errors.size = ["Size is required"]
-    if (!facing) errors.facing = ["Facing is required"]
-    if (!plotNumber) errors.plotNumber = ["Plot number is required"]
-    if (!price) errors.price = ["Price is required"]
-    if (!sellerType) errors.sellerType = ["Seller type is required"]
-    if (!sellerName) errors.sellerName = ["Seller name is required"]
-    if (!sellerPhone) errors.sellerPhone = ["Phone number is required"]
+    if (!propertyType) errors.propertyType = ["Property type is required"];
+    if (!size) errors.size = ["Size is required"];
+    if (!facing) errors.facing = ["Facing is required"];
+    if (!plotNumber) errors.plotNumber = ["Plot number is required"];
+    if (!price) errors.price = ["Price is required"];
+    if (!sellerType) errors.sellerType = ["Seller type is required"];
+    if (!sellerName) errors.sellerName = ["Seller name is required"];
+    if (!sellerPhone) errors.sellerPhone = ["Phone number is required"];
 
     if (Object.keys(errors).length > 0) {
       return {
@@ -95,13 +131,11 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
         message: "Please fill all required fields",
         errors,
         statusCode: 400,
-      }
+      };
     }
 
     // Generate custom property ID
-    const customId = generatePropertyId(propertyType, plotNumber, facing, size)
-
-    console.log("Generated custom ID:", customId)
+    const customId = generatePropertyId(propertyType, plotNumber, facing, size);
 
     // Prepare data for database insertion
     const dbData = {
@@ -128,33 +162,31 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
         form_version: "1.0",
         custom_id: customId,
         is_srini_owned: isSriniOwned,
-        user_agent: typeof window !== "undefined" ? window.navigator.userAgent : "server",
+        user_agent:
+          typeof window !== "undefined" ? window.navigator.userAgent : "server",
         files_uploaded: {
           property_documents: propertyDocuments.length,
           layout_documents: layoutDocuments.length,
+          asset_documents: assetDocuments.length,
         },
       },
-    }
-
-    console.log("Submitting selling data:", dbData)
+    };
 
     // Insert into database
     const { data: insertedData, error } = await supabase
       .from("property_selling_submissions")
       .insert([dbData])
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error("Database error:", error)
+      console.error("[v0] ❌ Database error:", error);
       return {
         success: false,
         message: `Database error: ${error.message}`,
         statusCode: 500,
-      }
+      };
     }
-
-    console.log("Successfully inserted selling submission:", insertedData.id, "with custom ID:", customId)
 
     // Send SMS notification (only if not SRINI owned)
     // if (!isSriniOwned) {
@@ -190,7 +222,7 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
     // }
 
     // Revalidate admin dashboard
-    revalidatePath("/admin/dashboard")
+    revalidatePath("/admin/dashboard");
 
     return {
       success: true,
@@ -199,13 +231,16 @@ export async function submitPropertySelling(formData: FormData): Promise<Submiss
         : `Property listing submitted successfully! Your property ID is ${customId}. We'll contact you soon.`,
       customId: customId,
       statusCode: 200,
-    }
+    };
   } catch (error) {
-    console.error("Form submission error:", error)
+    console.error("[v0] ❌ Form submission error:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Failed to submit form. Please try again.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to submit form. Please try again.",
       statusCode: 500,
-    }
+    };
   }
 }
