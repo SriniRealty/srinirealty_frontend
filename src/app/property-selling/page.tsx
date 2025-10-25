@@ -45,7 +45,7 @@ function PropertySellingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [formData, setFormData] = useState({
-    propertyType: "",
+    propertyType: "Open Plot",
     size: "",
     facing: "",
     plotNumber: "",
@@ -218,9 +218,7 @@ function PropertySellingPage() {
         })
 
         compressedFiles.push(compressed)
-        console.log(
-          `[v0] Compressed ${file.name} from ${fileSizeMB.toFixed(2)}MB to ${(compressed.size / 1024 / 1024).toFixed(2)}MB`,
-        )
+        
       } catch (error) {
         console.error(`[v0] Failed to compress ${file.name}:`, error)
         compressedFiles.push(file)
@@ -270,7 +268,6 @@ function PropertySellingPage() {
           const result = await analyzeLayoutDocument(base64, processedFile.name)
 
           if (result) {
-            console.log("[v0] AI analysis result:", result)
 
             const facingMap: Record<string, string> = {
               N: "North",
@@ -477,6 +474,7 @@ function PropertySellingPage() {
       assetDocuments.forEach((file, index) => {
         submitFormData.append(`assetDocument_${index}`, file)
       })
+
       layoutDocuments.forEach((file, index) => {
         submitFormData.append(`layoutDocument_${index}`, file)
       })
@@ -490,7 +488,7 @@ function PropertySellingPage() {
         })
 
         setFormData({
-          propertyType: "",
+          propertyType: "Open Plot",
           size: "",
           facing: "",
           plotNumber: "",
