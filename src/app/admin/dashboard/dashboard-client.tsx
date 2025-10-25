@@ -386,12 +386,12 @@ export default function DashboardClient({ session }: DashboardClientProps) {
               <p className="text-gray-600 mt-1">Welcome back, {session?.user?.username}</p>
             </div>
             <div className="flex items-center gap-3">
-              <Link href="/upload-property">
+              {/* <Link href="/upload-property">
                 <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
                   <Building2 className="h-4 w-4 mr-2" />
                   Upload Property
                 </Button>
-              </Link>
+              </Link> */}
               <Button
                 variant="outline"
                 onClick={handleLogout}
