@@ -128,7 +128,7 @@ function BlogContent() {
             </h1>
           </div>
           <p className="text-white/90 text-lg md:text-xl max-w-4xl mx-auto drop-shadow-md leading-relaxed mb-8">
-            Stay ahead in Hyderabad's dynamic real estate market with expert analysis, investment strategies, legal
+            Stay ahead in Hyderabad&apos;s dynamic real estate market with expert analysis, investment strategies, legal
             guidance, and market trends from industry professionals
           </p>
           <div className="max-w-2xl mx-auto relative">

@@ -3,7 +3,6 @@
 import { MapPin, Bed, Bath, Square, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import Link from "next/link";
 import { useState } from "react";
 import LocationDialog from "@/components/location-dialog";
 import MiniContact from "@/components/mini-contact";

@@ -21,7 +21,7 @@ import {
   X,
   FileText,
   ImageIcon,
-  File,
+  File as FileIcon,
   Star,
   Camera,
   Sparkles,
@@ -59,7 +59,6 @@ function PropertySellingPage() {
     description: "",
   })
 
-  const [propertyDocuments, setPropertyDocuments] = useState<File[]>([])
   const [layoutDocuments, setLayoutDocuments] = useState<File[]>([])
   const [assetDocuments, setAssetDocuments] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -125,9 +124,11 @@ function PropertySellingPage() {
     return "Sqft"
   }
 
-  const convertPriceToWords = (price: any) => {
+  const convertPriceToWords = (price: string | number) => {
     if (!price) return ""
-    const words = numberToWords(price)
+    const num = typeof price === "string" ? Number.parseFloat(price) : price
+    if (isNaN(num)) return ""
+    const words = numberToWords(num)
     return words ? `${words} Only` : ""
   }
 
@@ -140,7 +141,7 @@ function PropertySellingPage() {
     } else if (fileType.includes("doc")) {
       return <FileText className="h-4 w-4 text-blue-600" />
     }
-    return <File className="h-4 w-4 text-gray-500" />
+    return <FileIcon className="h-4 w-4 text-gray-500" />
   }
 
   const formatFileSize = (bytes: number) => {
@@ -202,7 +203,7 @@ function PropertySellingPage() {
                     reject(new Error("Failed to compress image"))
                     return
                   }
-                  const compressedFile = new (window as any).File([blob], file.name, {
+                  const compressedFile = new File([blob], file.name, {
                     type: "image/jpeg",
                     lastModified: Date.now(),
                   })
@@ -321,11 +322,8 @@ function PropertySellingPage() {
     }
   }
 
-  const removeFile = (index: number, type: "property" | "layout" | "asset") => {
-    if (type === "property") {
-      setPropertyDocuments((prev) => prev.filter((_, i) => i !== index))
-      toast.success("File removed successfully")
-    } else if (type === "layout") {
+  const removeFile = (index: number, type: "layout" | "asset") => {
+    if (type === "layout") {
       setLayoutDocuments((prev) => prev.filter((_, i) => i !== index))
       setLayoutImage(null) // Also clear the layout image preview if it's removed
       toast.success("Layout image removed successfully")
@@ -335,31 +333,7 @@ function PropertySellingPage() {
     }
   }
 
-  const validateFiles = (files: File[], maxSizePerFile = 10, maxTotalSize = 50) => {
-    const maxSizeBytes = maxSizePerFile * 1024 * 1024
-    const maxTotalBytes = maxTotalSize * 1024 * 1024
-
-    for (const file of files) {
-      if (file.size > maxSizeBytes) {
-        return {
-          valid: false,
-          message: `File "${file.name}" exceeds ${maxSizePerFile}MB limit (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
-        }
-      }
-    }
-
-    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
-    if (totalSize > maxTotalBytes) {
-      return {
-        valid: false,
-        message: `Total file size exceeds ${maxTotalSize}MB limit (${(totalSize / 1024 / 1024).toFixed(2)}MB)`,
-      }
-    }
-
-    return { valid: true }
-  }
-
-  const handleFileUpload = async (files: FileList | null, type: "asset") => {
+  const handleFileUpload = async (files: FileList | null) => {
     if (!files) return
 
     const fileArray = Array.from(files)
@@ -411,21 +385,6 @@ function PropertySellingPage() {
       console.error("[v0] File processing error:", error)
       toast.error("Failed to process files. Please try again.")
     }
-  }
-
-  const handlePropertyDocsUpload = (files: FileList | null) => {
-    if (!files) return
-
-    const fileArray = Array.from(files)
-    const validation = validateFiles(fileArray, 10, 50)
-
-    if (!validation.valid) {
-      toast.error(validation.message)
-      return
-    }
-
-    setPropertyDocuments((prev) => [...prev, ...fileArray])
-    toast.success(`${fileArray.length} file(s) added successfully!`)
   }
 
   const isFormValid = () => {
@@ -516,7 +475,7 @@ function PropertySellingPage() {
     }
   }
 
-  const FilePreview = ({ files, type }: { files: File[]; type: "asset" | "layout" | "property" }) => {
+  const FilePreview = ({ files, type }: { files: File[]; type: "asset" | "layout" }) => {
     if (files.length === 0) return null
 
     return (
@@ -593,7 +552,7 @@ function PropertySellingPage() {
       async (blob) => {
         if (!blob) return
 
-        let file = new (window as any).File([blob], `layout-${Date.now()}.jpg`, {
+        let file = new File([blob], `layout-${Date.now()}.jpg`, {
           type: "image/jpeg",
         })
 
@@ -703,7 +662,7 @@ function PropertySellingPage() {
                   <strong>Upload your property layout</strong> and AI will automatically extract: Plot Number, Size,
                   Facing Direction, and Location
                 </p>
-                <p className="text-xs md:text-sm text-gray-600">You'll need to fill other details manually</p>
+                <p className="text-xs md:text-sm text-gray-600">You&apos;ll need to fill other details manually</p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -1077,7 +1036,7 @@ function PropertySellingPage() {
                     type="file"
                     multiple
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.dwg"
-                    onChange={(e) => handleFileUpload(e.target.files, "asset")}
+                    onChange={(e) => handleFileUpload(e.target.files)}
                     className="hidden"
                     id="asset-docs"
                   />

@@ -48,7 +48,6 @@ export default function EnquiryForm({
   title = "Get Expert Property Consultation",
   subtitle = "Property Enquiry Form",
   description = "Get personalized property recommendations from our experts",
-  formType = "quick_enquiry",
 }: EnquiryFormProps) {
   const [formData, setFormData] = useState({
     name: "",
@@ -62,6 +61,8 @@ export default function EnquiryForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
   const [errorMessage, setErrorMessage] = useState("")
+
+  if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -306,7 +307,7 @@ export default function EnquiryForm({
                 </Button>
 
                 <p className="text-center text-xs text-gray-500 mt-2">
-                  📧 You'll receive a confirmation email after submitting
+                  📧 You&apos;ll receive a confirmation email after submitting
                 </p>
               </form>
             </CardContent>

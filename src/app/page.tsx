@@ -5,7 +5,6 @@ import WhyChooseUs from "@/components/why-choose-us";
 import Testimonials from "@/components/testimonials";
 import CoreValues from "@/components/core-values";
 import { Button } from "@/components/ui/button";
-import { Award, Building } from "lucide-react";
 import BlogPreview from "@/components/blog-preview";
 import { useState } from "react";
 import EnquiryForm from "@/components/enquiry-form";
@@ -38,7 +37,7 @@ export default function HomePage() {
                 </h2>
 
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  Since 2008, we've been committed to building more than just
+                  Since 2008, we&apos;ve been committed to building more than just
                   properties – we build communities, relationships, and dreams.
                   Our journey of growth is intertwined with the families we
                   serve.
@@ -150,11 +149,11 @@ export default function HomePage() {
       <section className="py-20 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-heading text-4xl md:text-5xl font-bold bg-gradient-to-r from-cta to-purple-600 bg-clip-text text-transparent mb-6">
-            Start Your Property Journey Today - Let's Grow Together
+            Start Your Property Journey Today - Let&apos;s Grow Together
           </h2>
           <p className="text-gray-800 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
             Join thousands of satisfied customers who have found their perfect
-            property with Srini Realty in Hyderabad. Together, we'll build your
+            property with Srini Realty in Hyderabad. Together, we&apos;ll build your
             future.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">

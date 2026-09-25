@@ -20,9 +20,9 @@ export default function NotFound() {
         <div className="mb-8">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Oops! Page Not Found</h2>
           <p className="text-lg md:text-xl text-gray-600 mb-2">
-            The property you're looking for seems to have moved to a new location.
+            The property you&apos;re looking for seems to have moved to a new location.
           </p>
-          <p className="text-base md:text-lg text-gray-500">Don't worry, we'll help you find your dream home!</p>
+          <p className="text-base md:text-lg text-gray-500">Don&apos;t worry, we&apos;ll help you find your dream home!</p>
         </div>
 
         {/* Decorative Elements */}

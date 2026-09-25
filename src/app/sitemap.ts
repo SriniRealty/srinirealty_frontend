@@ -93,6 +93,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: currentDate,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    },
   ]
 
   // Dynamic blog posts

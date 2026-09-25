@@ -59,7 +59,7 @@ export default function Testimonials() {
             What Our Customers Say
           </h2>
           <p className="text-gray-700 text-lg max-w-2xl mx-auto">
-            Don't just take our word for it - hear from our satisfied customers
+            Don&apos;t just take our word for it - hear from our satisfied customers
           </p>
         </div>
 
@@ -69,7 +69,7 @@ export default function Testimonials() {
 
             <div className="text-center">
               <p className="text-lg md:text-xl text-gray-800 mb-8 leading-relaxed">
-                "{testimonials[currentIndex].text}"
+                &ldquo;{testimonials[currentIndex].text}&rdquo;
               </p>
 
               <div className="flex items-center justify-center mb-4">
@@ -89,8 +89,7 @@ export default function Testimonials() {
                   loading="lazy"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    // target.src =
-                    //   // "/placeholder.svg?height=64&width=64&text=User";
+                    target.src = "/placeholder.svg";
                   }}
                 />
                 <div className="text-left">

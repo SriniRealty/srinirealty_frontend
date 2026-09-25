@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Award, Users, Building, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import LocationDialog from "@/components/location-dialog";
 import MiniContact from "@/components/mini-contact";
 
 const stats = [
@@ -62,7 +59,6 @@ const milestones = [
 ];
 
 export default function AboutPage() {
-  const [isLocationOpen, setIsLocationOpen] = useState(false);
   return (
     <div className="pt-16">
       {/* Hero Section with GROW TOGETHER - Redesigned */}
@@ -153,7 +149,7 @@ export default function AboutPage() {
                   Founded in 2010, Srini Realty Private Limited began with a
                   vision to create exceptional living spaces that combine
                   quality, comfort, and affordability. What started as a family
-                  business has grown into one of Hyderabad's trusted real estate
+                  business has grown into one of Hyderabad&apos;s trusted real estate
                   developers.
                 </p>
                 <p className="text-lg">
@@ -164,8 +160,8 @@ export default function AboutPage() {
                 </p>
                 <p className="text-lg">
                   Today, we continue to innovate in the real estate industry,
-                  keeping our customers' dreams at the heart of everything we
-                  do. Our "Growing Together" philosophy means your success is
+                  keeping our customers&apos; dreams at the heart of everything we
+                  do. Our &quot;Growing Together&quot; philosophy means your success is
                   our success.
                 </p>
               </div>
@@ -191,7 +187,7 @@ export default function AboutPage() {
               Our Growth Journey
             </h2>
             <p className="text-gray-700 text-lg max-w-2xl mx-auto">
-              Key milestones in our journey of growing together with Hyderabad's
+              Key milestones in our journey of growing together with Hyderabad&apos;s
               real estate market
             </p>
           </div>

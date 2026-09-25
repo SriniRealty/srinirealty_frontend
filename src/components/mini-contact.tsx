@@ -14,7 +14,7 @@ export default function MiniContact() {
           <p className="text-white/90 text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
             Join thousands of satisfied customers who have made their real
             estate dreams come true with Srini Realty Private Limited in
-            Hyderabad. Let's grow together towards your property goals.
+            Hyderabad. Let&apos;s grow together towards your property goals.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Button

@@ -7,7 +7,6 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import FloatingButtons from "@/components/floating-buttons";
 import GoogleAnalytics from "@/components/google-analytics";
-import { Suspense } from "react";
 
 const inter = Inter({
   subsets: ["latin"],

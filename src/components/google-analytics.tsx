@@ -1,7 +1,7 @@
 "use client"
 
 import Script from "next/script"
-import { pageview, GA_MEASUREMENT_ID } from "@/lib/google-analytics"
+import { GA_MEASUREMENT_ID } from "@/lib/google-analytics"
 
 export default function GoogleAnalytics() {
 

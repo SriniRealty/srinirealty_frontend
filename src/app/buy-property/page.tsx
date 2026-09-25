@@ -11,7 +11,6 @@ import {
   X,
   AlertCircle,
   CheckCircle,
-  Building2,
   Star,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -636,6 +635,7 @@ function BuyPropertyPageInner() {
                           priority={index < 6}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
+                            target.src = "/placeholder.svg";
                           }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>

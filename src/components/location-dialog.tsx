@@ -30,7 +30,7 @@ export default function LocationDialog({
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 rounded-t-lg flex-shrink-0 relative">
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-center pr-8">
-              Visit Our Office - Let's Grow Together
+              Visit Our Office - Let&apos;s Grow Together
             </DialogTitle>
           </DialogHeader>
           <button

@@ -37,7 +37,7 @@ export default function ContactPage() {
             </h1>
           </div>
           <p className="text-white/90 text-lg md:text-xl max-w-3xl mx-auto drop-shadow-md leading-relaxed">
-            Get in touch with our real estate experts in Hyderabad. We're here
+            Get in touch with our real estate experts in Hyderabad. We&apos;re here
             to help you find your perfect property and grow together towards
             your real estate goals.
           </p>

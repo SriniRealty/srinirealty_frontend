@@ -162,7 +162,7 @@ export default function PropertyBuyingPage() {
           </div>
           <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">Find Your Dream Property</h1>
           <p className="text-sm md:text-lg text-gray-600">
-            Tell us what you're looking for and we'll help you find the perfect property
+            Tell us what you&apos;re looking for and we&apos;ll help you find the perfect property
           </p>
         </div>
 
@@ -384,7 +384,7 @@ export default function PropertyBuyingPage() {
                   <p className="text-red-500 mt-3 text-xs md:text-sm">Please fill all required fields marked with *</p>
                 )}
                 <p className="text-gray-600 mt-2 md:mt-4 text-xs md:text-sm">
-                  We'll show you matching properties instantly
+                  We&apos;ll show you matching properties instantly
                 </p>
               </div>
             </form>
